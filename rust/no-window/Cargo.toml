@@ -1,0 +1,16 @@
+[package]
+name = "no-window"
+version = "0.1.0"
+edition = "2018"
+
+
+[dependencies]
+image = "0.24"
+shaderc = "0.8"
+wgpu = { version = "0.15", features = ["spirv"] }
+pollster = "0.2"
+futures-intrusive = "0.4"
+
+[[bin]]
+name = "windowless"
+path = "src/main.rs"

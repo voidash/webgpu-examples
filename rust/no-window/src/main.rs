@@ -5,6 +5,7 @@ async fn run() {
         backends: wgpu::Backends::all(),
         dx12_shader_compiler: Default::default(),
     });
+
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::default(),

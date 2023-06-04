@@ -12,5 +12,5 @@ pollster = "0.2"
 futures-intrusive = "0.4"
 
 [[bin]]
-name = "windowless"
+name = "no-window"
 path = "src/main.rs"

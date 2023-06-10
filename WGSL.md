@@ -236,3 +236,37 @@ Shader creation time --> Pipeline creation time --> Shader Execution Time
 - binding must be non negative integer
 - same resource can't be bound to multiple bindings.
   By grouping resources, GPU can fetch them in single operation.
+
+## Shader Stages
+
+Pipeline desribes the work to be performed in GPU, as a sequence of stages. Some of them are programmable.
+Dispatch command to run compute shader stage.
+
+Draw command has
+
+- vertex shader
+- fragment shader
+
+## Compute Shader
+
+- Workgroup is set of invocations which concurrently execute a compute shader shader stage entry point, and share access
+  to shader variables in the workgroup address space.
+
+- Workgroup grid for compute shader is the set of points with integer coordinates (i,j,k) with
+
+```
+    0 <= i < workgroup_size_x
+    0 <= j < workgroup_size_y
+    0 <= k < workgroup_size_k
+```
+
+- one invocation for each point in workgroup grid
+- local invocation id for each workgroup grid point
+- Compute shader begins execution when a webGPU implementation removes a dispatch command from a queue and begins the work on GPU
+- The compute shader grid for a particular dispatch is the set of points with integer coordinates (CSi,CSj,CSk) with:
+
+```
+    0 ≤ CSi < workgroup_size_x × group_count_x
+    0 ≤ CSj < workgroup_size_y × group_count_y
+    0 ≤ CSk < workgroup_size_z × group_count_z
+```

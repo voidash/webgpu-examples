@@ -3,23 +3,6 @@ struct Params {
   blockDim : u32,
 }
 
-@group(0) @binding(0) var samp : sampler;
-@group(0) @binding(1) var<uniform> params : Params;
-@group(1) @binding(1) var inputTex : texture_2d<f32>;
-@group(1) @binding(2) var outputTex : texture_storage_2d<rgba8unorm, write>;
-
-struct Flip {
-  value : u32,
-}
-@group(1) @binding(3) var<uniform> flip : Flip;
-
-var<workgroup> tile : array<array<vec3<f32>, 128>, 4>;
-
-//https://www.w3.org/TR/WGSL/#compute-shader-workgroups
-
-// first parameter defines the X dimension, second Y dimension, and third Z dimension
-// 32x1x1
-
 @compute @workgroup_size(32, 1, 1)
 fn main(
   //https://www.w3.org/TR/WGSL/#builtin-values

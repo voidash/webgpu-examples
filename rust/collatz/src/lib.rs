@@ -1,5 +1,3 @@
-use std::time::Duration;
-
 use wgpu::{ComputePipelineDescriptor};
 use wgpu::util::DeviceExt;
 
@@ -35,7 +33,6 @@ pub async fn run() {
         .await
         .unwrap();
 
-        let timestamp_period = queue.get_timestamp_period();
 
         let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Shader"),

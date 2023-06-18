@@ -1,12 +1,11 @@
 [package]
-name = "collatz"
+name = "bls12-381"
 version = "0.1.0"
 edition = "2021"
 
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
-bytemuck = "1.13.1"
-pollster = "0.2"
-wgpu = { version = "0.15", features=["spirv"]}
+lazy_static = "1.4.0"
+rug = "1.19.2"
 

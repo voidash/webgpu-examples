@@ -8,5 +8,6 @@ edition = "2021"
 [dependencies]
 bytemuck = "1.13.1"
 pollster = "0.2"
-wgpu = { version = "0.15", features=["spirv"]}
+rand_core = "0.6.4"
+wgpu = { version = "0.15"}
 

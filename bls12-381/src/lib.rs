@@ -1,5 +1,6 @@
-use wgpu::{ComputePipelineDescriptor};
 use wgpu::util::DeviceExt;
+use wgpu::ComputePipelineDescriptor;
+mod Fp;
 
 pub async fn run() {
     let top = 2u32.pow(20);
@@ -24,19 +25,21 @@ pub async fn run() {
         .unwrap();
 
     let (device, queue) = adapter
-        .request_device(&wgpu::DeviceDescriptor {
-            label: None,
-            // was TIMESTAMP before
-            features: wgpu::Features::empty(),
-            limits: wgpu::Limits::default(),
-        }, None)
+        .request_device(
+            &wgpu::DeviceDescriptor {
+                label: None,
+                // was TIMESTAMP before
+                features: wgpu::Features::empty(),
+                limits: wgpu::Limits::default(),
+            },
+            None,
+        )
         .await
         .unwrap();
 
-
-        let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
+    let shader = device.create_shader_module(wgpu::ShaderModuleDescriptor {
         label: Some("Shader"),
-        source: wgpu::ShaderSource::Wgsl(include_str!("shader.wgsl").into()),
+        source: wgpu::ShaderSource::Wgsl(include_str!("Fp.wgsl").into()),
     });
 
     let bind_group_layout = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
@@ -66,7 +69,6 @@ pub async fn run() {
         module: &shader,
         entry_point: "main",
     });
-
 
     let readback_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
@@ -108,15 +110,14 @@ pub async fn run() {
     // });
 
     let mut encoder =
-    device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
-
+        device.create_command_encoder(&wgpu::CommandEncoderDescriptor { label: None });
 
     {
         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
         cpass.set_bind_group(0, &bind_group, &[]);
         cpass.set_pipeline(&compute_pipeline);
         // cpass.write_timestamp(&queries, 0);
-        // this makes the local invocation id and workgroup Size 
+        // this makes the local invocation id and workgroup Size
         cpass.dispatch_workgroups(src_range.len() as u32 / 64, 1, 1);
         // cpass.write_timestamp(&queries, 1);
     }
@@ -171,7 +172,4 @@ pub async fn run() {
     //         ((timings[1] - timings[0]) as f64 * f64::from(timestamp_period)) as u64
     //     )
     // );
-
-
 }
-

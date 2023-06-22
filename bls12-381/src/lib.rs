@@ -1,13 +1,10 @@
 use wgpu::util::DeviceExt;
 use wgpu::ComputePipelineDescriptor;
-mod Fp;
 
-pub async fn run() {
-    let top = 2u32.pow(20);
-    let src_range = 1..top;
-
-    let src = src_range
+pub async fn run(source_data: &Vec<u32>, entry_point: &str) -> Vec<u32> {
+    let src: Vec<u8> = source_data
         .clone()
+        .into_iter()
         .flat_map(u32::to_ne_bytes)
         .collect::<Vec<_>>();
 
@@ -67,7 +64,7 @@ pub async fn run() {
         label: Some("compute pipeline"),
         layout: Some(&layout),
         module: &shader,
-        entry_point: "main",
+        entry_point: entry_point,
     });
 
     let readback_buffer = device.create_buffer(&wgpu::BufferDescriptor {
@@ -79,7 +76,7 @@ pub async fn run() {
     });
 
     let storage_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("Collatz Conjecture Input"),
+        label: Some("Fp write"),
         contents: &src,
         usage: wgpu::BufferUsages::STORAGE
             | wgpu::BufferUsages::COPY_DST
@@ -118,7 +115,7 @@ pub async fn run() {
         cpass.set_pipeline(&compute_pipeline);
         // cpass.write_timestamp(&queries, 0);
         // this makes the local invocation id and workgroup Size
-        cpass.dispatch_workgroups(src_range.len() as u32 / 64, 1, 1);
+        cpass.dispatch_workgroups(1, 1, 1);
         // cpass.write_timestamp(&queries, 1);
     }
 
@@ -152,19 +149,10 @@ pub async fn run() {
 
     drop(data);
     readback_buffer.unmap();
-    // drop(timing_data);
 
     // timestamp_buffer.unmap();
-    let mut max = 0;
-    for (src, out) in src_range.zip(result.iter().copied()) {
-        if out == u32::MAX {
-            println!("{src}: overflowed");
-            break;
-        } else if out > max {
-            max = out;
-            // Should produce <https://oeis.org/A006877>
-            println!("{src}: {out}");
-        }
+    for out in result.iter().copied() {
+        println!("{out}");
     }
     // println!(
     //     "Took: {:?}",
@@ -172,4 +160,5 @@ pub async fn run() {
     //         ((timings[1] - timings[0]) as f64 * f64::from(timestamp_period)) as u64
     //     )
     // );
+    return result;
 }

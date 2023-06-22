@@ -1,5 +1,6 @@
-use collatz::run;
+use fp::run;
 
 fn main() {
-    pollster::block_on(run());
+    env_logger::init();
+    pollster::block_on(run(&vec![1, 2, 4, 5], "main"));
 }

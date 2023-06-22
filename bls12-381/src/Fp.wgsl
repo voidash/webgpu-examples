@@ -123,9 +123,12 @@ fn multiply(a: u32, b: u32) -> array<u32, 2> {
 
   // Assemble the result
     let result_low: u32 = (carry << 16u) | (product_low & 0xFFFFu);
-    let result_high: u32 = carry_high + product_high + 1u;
+    var result_high: u32 = carry_high + product_high;
+    if result_high > 0u {
+        result_high -= 1u;
+    }
 
-    return array<u32, 2>(result_high, result_low);
+    return array<u32, 2>(result_low, result_high);
 }
 
 // 32 bit addition
@@ -176,7 +179,7 @@ fn sbb(a: u32, b: u32, borrow: u32) -> array<u32,2> {
     let borr = b + borrow;
     let ret = a - borr;
     var ret_borr = 0u;
-    if a > b {
+    if b + (borrow >> 31u) > a {
         ret_borr = 4294967295u;
     }
     return array<u32,2>(ret, ret_borr);
@@ -208,7 +211,7 @@ fn montgomery_reduce(
     t21: u32,
     t22: u32,
     t23: u32,
-) {
+) -> Fp {
     //for i = 0 to n-1 do
     //  ki <- (ti*N') mod b
     //  t <- t + kiNb^{i}
@@ -423,6 +426,22 @@ fn montgomery_reduce(
     var r23 = adc(t23, rem_carry, r22[1]);
 
     // implement subtract p
+    let fp_d = Fp(array<u32,12>(
+        r12[0],
+        r13[0],
+        r14[0],
+        r15[0],
+        r16[0],
+        r17[0],
+        r18[0],
+        r19[0],
+        r20[0],
+        r21[0],
+        r22[0],
+        r23[0]
+    ));
+
+    return subtract_p(fp_d);
 }
 
 fn subtract_p(data: Fp) -> Fp {
@@ -437,12 +456,6 @@ fn subtract_p(data: Fp) -> Fp {
     let r9_a = sbb(data.value[8], MODULUS[8], 0u);
     let r10_a = sbb(data.value[9], MODULUS[9], 0u);
     let r11_a = sbb(data.value[10], MODULUS[10], 0u);
-    let r11_a = sbb(data.value[11], MODULUS[11], 0u);
-
-    var borrow_inv: u32 = 1u;
-    if r11_a[1] == 1u {
-        borrow_inv = 0u;
-    }
 
     let r0 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
     let r1 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
@@ -461,8 +474,48 @@ fn subtract_p(data: Fp) -> Fp {
 }
 
 
+// local invocation is like 0 to x for every workgroup
 @compute
-@workgroup_size(64,1,1)
-fn main(@builtin(global_invocation_id) global_id: vec3<u32>) {
-    v_indices[global_id.x] = v_indices[global_id.x];
+@workgroup_size(32,1,1)
+fn main(
+    @builtin(global_invocation_id) global_id: vec3<u32>,
+    @builtin(local_invocation_id) local_id: vec3<u32>
+) {
+
+    v_indices[global_id.x] = v_indices[global_id.x] * 4294967295u;
+}
+
+
+
+/// Tests
+@compute
+@workgroup_size(1,1,1)
+fn adc_test() {
+    let a = adc(v_indices[0], v_indices[1], v_indices[2]);
+    v_indices[0] = a[0];
+    v_indices[1] = a[1];
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn multiply_test() {
+    let a = multiply(v_indices[0], v_indices[1]);
+    v_indices[0] = a[0];
+    v_indices[1] = a[1];
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn mac_test() {
+    let a = mac(v_indices[0], v_indices[1], v_indices[2], v_indices[3]);
+    v_indices[0] = a[0];
+    v_indices[1] = a[1];
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn sbb_test() {
+    let a = sbb(v_indices[0], v_indices[1], v_indices[2]);
+    v_indices[0] = a[0];
+    v_indices[1] = a[1];
 }

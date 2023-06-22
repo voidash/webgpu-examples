@@ -1,4 +1,4 @@
-a = 223424322
+a = 3
 b = 2333322
 
 
@@ -17,7 +17,9 @@ def multiply(a: int, b: int) -> list[int]:
     carry_high = (product_high >> 16) + (product_mid >> 16) + (carry >> 16)
     # Assemble the result
     result_low = (carry << 16) | (product_low & 0xFFFF)
-    result_high = carry_high + product_high - 1
+    result_high = carry_high + product_high
+    if (result_high > 0):
+        result_high -= 1
     return [result_high, result_low]
 
 

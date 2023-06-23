@@ -185,6 +185,38 @@ fn sbb(a: u32, b: u32, borrow: u32) -> array<u32,2> {
     return array<u32,2>(ret, ret_borr);
 }
 
+fn Fp_add(lhs: Fp, rhs: Fp) -> Fp {
+    let d0 = adc(lhs.value[0], rhs.value[0], 0u);
+    let d1 = adc(lhs.value[1], rhs.value[1], d0[1]);
+    let d2 = adc(lhs.value[2], rhs.value[2], d1[1]);
+    let d3 = adc(lhs.value[3], rhs.value[3], d2[1]);
+    let d4 = adc(lhs.value[4], rhs.value[4], d3[1]);
+    let d5 = adc(lhs.value[5], rhs.value[5], d4[1]);
+    let d6 = adc(lhs.value[6], rhs.value[6], d5[1]);
+    let d7 = adc(lhs.value[7], rhs.value[7], d6[1]);
+    let d8 = adc(lhs.value[8], rhs.value[8], d7[1]);
+    let d9 = adc(lhs.value[9], rhs.value[9], d8[1]);
+    let d10 = adc(lhs.value[10], rhs.value[10], d9[1]);
+    let d11 = adc(lhs.value[11], rhs.value[11], d10[1]);
+
+    let final_fp = Fp(array<u32,12>(
+        d0[0],
+        d1[0],
+        d2[0],
+        d3[0],
+        d4[0],
+        d5[0],
+        d6[0],
+        d7[0],
+        d8[0],
+        d9[0],
+        d10[0],
+        d11[0]
+    ));
+
+    return subtract_p(final_fp);
+}
+
 fn montgomery_reduce(
     // n = 12 , 2*n-1 = 23
     t0: u32,
@@ -471,6 +503,91 @@ fn subtract_p(data: Fp) -> Fp {
     let r11 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
 
     return Fp(array<u32,12>(r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11));
+}
+
+fn square(data: Fp) {
+    var t1 = mac(0u, data.value[0], data.value[1], 0u);
+    var t2 = mac(0u, data.value[0], data.value[2], t1[1]);
+    var t3 = mac(0u, data.value[0], data.value[3], t2[1]);
+    var t4 = mac(0u, data.value[0], data.value[4], t3[1]);
+    var t5 = mac(0u, data.value[0], data.value[5], t4[1]);
+    var t6 = mac(0u, data.value[0], data.value[6], t5[1]);
+    var t7 = mac(0u, data.value[0], data.value[7], t6[1]);
+    var t8 = mac(0u, data.value[0], data.value[8], t7[1]);
+    var t9 = mac(0u, data.value[0], data.value[9], t8[1]);
+    var t10 = mac(0u, data.value[0], data.value[10], t9[1]);
+    var t11 = mac(0u, data.value[0], data.value[11], t10[1]);
+
+
+    t3 = mac(t3[0], data.value[1], data.value[2], 0u);
+    t4 = mac(t4[0], data.value[1], data.value[3], t3[1]);
+    t5 = mac(t5[0], data.value[1], data.value[4], t4[1]);
+    t6 = mac(t6[0], data.value[1], data.value[5], t5[1]);
+    t7 = mac(t7[0], data.value[1], data.value[6], t6[1]);
+    t8 = mac(t8[0], data.value[1], data.value[7], t7[1]);
+    t9 = mac(t9[0], data.value[1], data.value[8], t8[1]);
+    t10 = mac(t10[0], data.value[1], data.value[9], t9[1]);
+    t11 = mac(t11[0], data.value[1], data.value[10], t10[1]);
+    var t12 = mac(0u, data.value[1], data.value[11], t11[1]);
+
+    t5 = mac(t5[0], data.value[2], data.value[3], 0u);
+    t6 = mac(t6[0], data.value[2], data.value[4], t5[1]);
+    t7 = mac(t7[0], data.value[2], data.value[5], t6[1]);
+    t8 = mac(t8[0], data.value[2], data.value[6], t7[1]);
+    t9 = mac(t9[0], data.value[2], data.value[7], t8[1]);
+    t10 = mac(t10[0], data.value[2], data.value[8], t9[1]);
+    t11 = mac(t11[0], data.value[2], data.value[9], t10[1]);
+    t12 = mac(t12[0], data.value[2], data.value[10], t11[1]);
+    var t13 = mac(0u, data.value[2], data.value[11], t12[1]);
+
+    t7 = mac(t7[0], data.value[3], data.value[4], 0u);
+    t8 = mac(t8[0], data.value[3], data.value[5], t7[1]);
+    t9 = mac(t9[0], data.value[3], data.value[6], t8[1]);
+    t10 = mac(t10[0], data.value[3], data.value[7], t9[1]);
+    t11 = mac(t11[0], data.value[3], data.value[8], t10[1]);
+    t12 = mac(t12[0], data.value[3], data.value[9], t11[1]);
+    t13 = mac(t13[0], data.value[3], data.value[10], t12[1]);
+    var t14 = mac(0u, data.value[3], data.value[11], t13[1]);
+
+    t9 = mac(t9[0], data.value[4], data.value[5], t8[1]);
+    t10 = mac(t10[0], data.value[4], data.value[6], t9[1]);
+    t11 = mac(t11[0], data.value[4], data.value[7], t10[1]);
+    t12 = mac(t12[0], data.value[4], data.value[8], t11[1]);
+    t13 = mac(t13[0], data.value[4], data.value[9], t12[1]);
+    t14 = mac(t14[0], data.value[4], data.value[10], t13[1]);
+    var t15 = mac(0u, data.value[4], data.value[11], t14[1]);
+
+    t11 = mac(t11[0], data.value[5], data.value[6], t10[1]);
+    t12 = mac(t12[0], data.value[5], data.value[7], t11[1]);
+    t13 = mac(t13[0], data.value[5], data.value[8], t12[1]);
+    t14 = mac(t14[0], data.value[5], data.value[9], t13[1]);
+    t15 = mac(t15[0], data.value[5], data.value[10], t14[1]);
+    var t16 = mac(0u, data.value[5], data.value[11], t15[1]);
+
+    t13 = mac(t13[0], data.value[6], data.value[7], t12[1]);
+    t14 = mac(t14[0], data.value[6], data.value[8], t13[1]);
+    t15 = mac(t15[0], data.value[6], data.value[9], t14[1]);
+    t16 = mac(t16[0], data.value[6], data.value[10], t15[1]);
+    var t17 = mac(0u, data.value[6], data.value[11], t16[1]);
+
+    t15 = mac(t15[0], data.value[7], data.value[8], t14[1]);
+    t16 = mac(t16[0], data.value[7], data.value[9], t15[1]);
+    t17 = mac(t17[0], data.value[7], data.value[10], t16[1]);
+    var t18 = mac(0u, data.value[7], data.value[11], t17[1]);
+
+    t17 = mac(t17[0], data.value[7], data.value[9], t16[1]);
+    t18 = mac(t18[0], data.value[7], data.value[10], t17[1]);
+    var t19 = mac(0u, data.value[7], data.value[11], t18[1]);
+
+    t19 = mac(t19[0], data.value[8], data.value[10], t18[1]);
+    var t20 = mac(0u, data.value[8], data.value[11], t18[1]);
+
+    t20 = mac(t20[0], data.value[9], data.value[11], t19[1]);
+    var t21 = t20[1];
+
+    var t22 = t20[1] >> 31u;
+    t21 = (t21 << 1u) | (t20[0] >> 63u);
+    t20 = (t20[0] << 1u) | (t19[0] >> 63u);
 }
 
 

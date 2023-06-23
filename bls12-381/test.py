@@ -23,8 +23,10 @@ def multiply(a: int, b: int) -> list[int]:
     return [result_high, result_low]
 
 
+
 # 67063
 print(multiply(a, b))
 print(a*b)
 print((a*b) & 0xffff_ffff)
 print((a*b) >> 32)
+ 

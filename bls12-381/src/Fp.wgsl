@@ -505,11 +505,165 @@ fn subtract_p(data: Fp) -> Fp {
     return Fp(array<u32,12>(r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11));
 }
 
-fn pow_vartime() {
-    
+fn pow_vartime(data: Fp, by: array<u32,12>) -> Fp {
+    var res = R;
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[0] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[1] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[2] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[3] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[4] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[4] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[5] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[6] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[6] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[7] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[8] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[9] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[10] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+
+    for (var j = 32u; j > 0u; j--) {
+        res = square(res);
+
+        if ((by[11] >> j) & 1u) == 1u {
+            res = Fp_mul(res, data);
+        }
+    }
+    return res;
+} 
+
+fn sqrt(data: Fp) -> Fp {
+
+    // p + 1 // 4
+    let sqrt = pow_vartime(data, array<u32,12>(
+        0xffffeaabu,
+        0xee7fbfffu,
+        0xac54ffffu,
+        0x07aaffffu,
+        0x3dac3d89u,
+        0xd9cc34a8u,
+        0x3ce144afu,
+        0xd91dd2e1u,
+        0x90d2eb35u,
+        0x92c6e9edu,
+        0x8e5ff9a6u,
+        0x0680447au,
+    ));
+
+    return sqrt;
 }
 
-fn square(data: Fp) {
+fn invert(data: Fp) -> Fp {
+    // exponentiate by p-2
+    let d = array<u32,12>(
+        0xffffaaa9u,
+        0xb9feffffu,
+        0xb153ffffu,
+        0x1eabfffeu,
+        0xf6b0f624u,
+        0x6730d2a0u,
+        0xf38512bfu,
+        0x64774b84u,
+        0x434bacd7u,
+        0x4b1ba7b6u,
+        0x397fe69au,
+        0x1a0111eau,
+    );
+    let in = pow_vartime(data, d);
+    return in;
+}
+
+fn square(data: Fp) -> Fp {
     var t1 = mac(0u, data.value[0], data.value[1], 0u);
     var t2 = mac(0u, data.value[0], data.value[2], t1[1]);
     var t3 = mac(0u, data.value[0], data.value[3], t2[1]);
@@ -600,7 +754,7 @@ fn square(data: Fp) {
 
     var d23 = t21[1] >> 31u;
     var d22 = (t21[1] << 1u) | (t21[0] >> 63u);
-    var d21 = (t21[0] << 1u) | (t20[0] >> 63u);
+    d21 = (t21[0] << 1u) | (t20[0] >> 63u);
     var d20 = (t20[0] << 1u) | (t19[0] >> 63u);
     var d19 = (t19[0] << 1u) | (t18[0] >> 63u);
     var d18 = (t18[0] << 1u) | (t17[0] >> 63u);
@@ -638,8 +792,8 @@ fn square(data: Fp) {
     var f13 = adc(d13, 0u, f12[1]);
     var f14 = mac(d14, data.value[7], data.value[7], f13[1]);
     var f15 = adc(d15, 0u, f14[1]);
-    var f16 = mac(d16, data.value[8], data.value[8], f15[1]);
-    var f17 = adc(d17, 0u, f16[1]);
+    var f1o6 = mac(d16, data.value[8], data.value[8], f15[1]);
+    var f17 = adc(d17, 0u, f1o6[1]);
     var f18 = mac(d18, data.value[9], data.value[9], f17[1]);
     var f19 = adc(d19, 0u, f18[1]);
     var f20 = mac(d20, data.value[10], data.value[10], f19[1]);
@@ -647,10 +801,10 @@ fn square(data: Fp) {
     var f22 = mac(d22, data.value[11], data.value[11], f21[1]);
     var f23 = adc(d23, 0u, f22[1]);
 
-    return montgomery_reduce(f0[0], f1[0], f2[0], f3[0], f4[0], f5[0], f6[0], f7[0], f8[0], f9[0], f10[0], f11[0], f12[0], f13[0], f14[0], f15[0], f16[0], f17[0], f18[0], f19[0], f20[0], f21[0], f22[0], f23[0]);
+    return montgomery_reduce(f0[0], f1[0], f2[0], f3[0], f4[0], f5[0], f6[0], f7[0], f8[0], f9[0], f10[0], f11[0], f12[0], f13[0], f14[0], f15[0], f1o6[0], f17[0], f18[0], f19[0], f20[0], f21[0], f22[0], f23[0]);
 }
 
-fn Fp_mul(lhs: Fp, rhs: Fp) {
+fn Fp_mul(lhs: Fp, rhs: Fp) -> Fp {
     var t0 = mac(0u, lhs.value[0], rhs.value[0], 0u);
     var t1 = mac(0u, lhs.value[0], rhs.value[1], t0[1]);
     var t2 = mac(0u, lhs.value[0], rhs.value[2], t1[1]);

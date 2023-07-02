@@ -136,14 +136,16 @@ fn sum(a: u32, b: u32) -> array<u32,2> {
     let a_31bit = a & 0x7fffffffu;
     let b_31bit = b & 0x7fffffffu;
 
-    let sum = a_31bit + b_31bit;
+    let sum = a + b;
+
+    let sum_31bit = a_31bit + b_31bit;
 
     let msb_a = a >> 31u;
     let msb_b = b >> 31u;
-    let msb_sum = sum >> 31u;
+    let msb_sum = sum_31bit >> 31u;
     let carry = (msb_a & msb_b) | (msb_a & msb_sum) | (msb_b & msb_sum);
 
-    return array<u32,2>(carry, sum);
+    return array<u32,2>(sum, carry);
 }
 
 
@@ -158,7 +160,7 @@ fn mac(a: u32, b: u32, c: u32, carry: u32) -> array<u32,2> {
 
     let carry = bc_total[1] + bc_multiply[1] + a_bc_sum[1];
 
-    return array<u32,2>(carry, a_bc_sum[0]);
+    return array<u32,2>(a_bc_sum[0], carry);
 }
 
 // a + b + carry
@@ -167,16 +169,16 @@ fn adc(a: u32, b: u32, carry: u32) -> array<u32,2> {
     let ab = sum(a, b);
     let abc = sum(ab[0], carry);
 
-    let carry = ab[1] + abc[1];
+    let ck = ab[1] + abc[1];
 
-    return array<u32,2>(carry, abc[0]);
+    return array<u32,2>(abc[0], ck);
 }
 
 // https://shorturl.at/mCIPT
 // a - (b + borrow)
 fn sbb(a: u32, b: u32, borrow: u32) -> array<u32,2> {
-    let b32: u32 = (borrow >> 31u) & 1u;
-    let borr = b + borrow;
+    let b32: u32 = (borrow >> 31u);
+    let borr = b + b32;
     let ret = a - borr;
     var ret_borr = 0u;
     if b + (borrow >> 31u) > a {
@@ -213,8 +215,51 @@ fn Fp_add(lhs: Fp, rhs: Fp) -> Fp {
         d10[0],
         d11[0]
     ));
-
+    // return final_fp;
     return subtract_p(final_fp);
+}
+
+fn Fp_neg(data: Fp) -> Fp {
+    let r1_a = sbb(MODULUS[0], data.value[0], 0u);
+    let r2_a = sbb(MODULUS[1], data.value[1], r1_a[1]);
+    let r3_a = sbb(MODULUS[2], data.value[2], r2_a[1]);
+    let r4_a = sbb(MODULUS[3], data.value[3], r3_a[1]);
+    let r5_a = sbb(MODULUS[4], data.value[4], r4_a[1]);
+    let r6_a = sbb(MODULUS[5], data.value[5], r5_a[1]);
+    let r7_a = sbb(MODULUS[6], data.value[6], r6_a[1]);
+    let r8_a = sbb(MODULUS[7], data.value[7], r7_a[1]);
+    let r9_a = sbb(MODULUS[8], data.value[8], r8_a[1]);
+    let r10_a = sbb(MODULUS[9], data.value[9], r9_a[1]);
+    let r11_a = sbb(MODULUS[10], data.value[10], r10_a[1]);
+    let r12_a = sbb(MODULUS[11], data.value[11], r11_a[1]);
+
+    let m_v = (data.value[0] | data.value[1] | data.value[2] | data.value[3] | data.value[4] | data.value[5] | data.value[6] | data.value[7] | data.value[8] | data.value[9] | data.value[10] | data.value[11]);
+    var mask = 0u;
+    if m_v != 0u {
+        // u32::MAX 
+        mask = mask - 1u;
+    }
+
+    return Fp(
+        array<u32,12>(
+            r1_a[0] & mask,
+            r2_a[0] & mask,
+            r3_a[0] & mask,
+            r4_a[0] & mask,
+            r5_a[0] & mask,
+            r6_a[0] & mask,
+            r7_a[0] & mask,
+            r8_a[0] & mask,
+            r9_a[0] & mask,
+            r10_a[0] & mask,
+            r11_a[0] & mask,
+            r12_a[0] & mask,
+        )
+    );
+}
+
+fn Fp_sub(lhs: Fp, rhs: Fp) -> Fp {
+    return Fp_add(lhs, Fp_neg(rhs));
 }
 
 fn montgomery_reduce(
@@ -477,32 +522,35 @@ fn montgomery_reduce(
 }
 
 fn subtract_p(data: Fp) -> Fp {
-    let r1_a = sbb(data.value[0], MODULUS[0], 0u);
-    let r2_a = sbb(data.value[1], MODULUS[1], 0u);
-    let r3_a = sbb(data.value[2], MODULUS[2], 0u);
-    let r4_a = sbb(data.value[3], MODULUS[3], 0u);
-    let r5_a = sbb(data.value[4], MODULUS[4], 0u);
-    let r6_a = sbb(data.value[5], MODULUS[5], 0u);
-    let r7_a = sbb(data.value[6], MODULUS[6], 0u);
-    let r8_a = sbb(data.value[7], MODULUS[7], 0u);
-    let r9_a = sbb(data.value[8], MODULUS[8], 0u);
-    let r10_a = sbb(data.value[9], MODULUS[9], 0u);
-    let r11_a = sbb(data.value[10], MODULUS[10], 0u);
 
-    let r0 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r1 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r2 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r3 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r4 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r5 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r6 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r7 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r8 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r9 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r10 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
-    let r11 = (data.value[0] & r11_a[1]) | (r1_a[0] & ~r11_a[1]);
+    let r1_a = sbb(data.value[0], MODULUS[0], 0u);
+    let r2_a = sbb(data.value[1], MODULUS[1], r1_a[1]);
+    let r3_a = sbb(data.value[2], MODULUS[2], r2_a[1]);
+    let r4_a = sbb(data.value[3], MODULUS[3], r3_a[1]);
+    let r5_a = sbb(data.value[4], MODULUS[4], r4_a[1]);
+    let r6_a = sbb(data.value[5], MODULUS[5], r5_a[1]);
+    let r7_a = sbb(data.value[6], MODULUS[6], r6_a[1]);
+    let r8_a = sbb(data.value[7], MODULUS[7], r7_a[1]);
+    let r9_a = sbb(data.value[8], MODULUS[8], r8_a[1]);
+    let r10_a = sbb(data.value[9], MODULUS[9], r9_a[1]);
+    let r11_a = sbb(data.value[10], MODULUS[10], r10_a[1]);
+    let r12_a = sbb(data.value[11], MODULUS[11], r11_a[1]);
+
+    let r0 = (data.value[0] & r12_a[1]) | (r1_a[0] & ~r12_a[1]);
+    let r1 = (data.value[1] & r12_a[1]) | (r2_a[0] & ~r12_a[1]);
+    let r2 = (data.value[2] & r12_a[1]) | (r3_a[0] & ~r12_a[1]);
+    let r3 = (data.value[3] & r12_a[1]) | (r4_a[0] & ~r12_a[1]);
+    let r4 = (data.value[4] & r12_a[1]) | (r5_a[0] & ~r12_a[1]);
+    let r5 = (data.value[5] & r12_a[1]) | (r6_a[0] & ~r12_a[1]);
+    let r6 = (data.value[6] & r12_a[1]) | (r7_a[0] & ~r12_a[1]);
+    let r7 = (data.value[7] & r12_a[1]) | (r8_a[0] & ~r12_a[1]);
+    let r8 = (data.value[8] & r12_a[1]) | (r9_a[0] & ~r12_a[1]);
+    let r9 = (data.value[9] & r12_a[1]) | (r10_a[0] & ~r12_a[1]);
+    let r10 = (data.value[10] & r12_a[1]) | (r11_a[0] & ~r12_a[1]);
+    let r11 = (data.value[11] & r12_a[1]) | (r12_a[0] & ~r12_a[1]);
 
     return Fp(array<u32,12>(r0, r1, r2, r3, r4, r5, r6, r7, r8, r9, r10, r11));
+    // return Fp(array<u32,12>(r1_a[1], r2_a[0], r3_a[0], r4_a[0], r5_a[0], r6_a[0], r7_a[0], r8_a[0], r9_a[0], r10_a[0], r11_a[0], r12_a[0]));
 }
 
 fn pow_vartime(data: Fp, by: array<u32,12>) -> Fp {
@@ -1037,12 +1085,19 @@ fn main(
 /// Tests
 @compute
 @workgroup_size(1,1,1)
+fn sum_test() {
+    let a = sum(v_indices[0], v_indices[1]);
+    v_indices[0] = a[0];
+    v_indices[1] = a[1];
+}
+
+@compute
+@workgroup_size(1,1,1)
 fn adc_test() {
     let a = adc(v_indices[0], v_indices[1], v_indices[2]);
     v_indices[0] = a[0];
     v_indices[1] = a[1];
 }
-
 @compute
 @workgroup_size(1,1,1)
 fn multiply_test() {
@@ -1066,3 +1121,93 @@ fn sbb_test() {
     v_indices[0] = a[0];
     v_indices[1] = a[1];
 }
+
+@compute
+@workgroup_size(1,1,1)
+fn add_test() {
+
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+    let fp2 = Fp(array<u32,12>(v_indices[12], v_indices[13], v_indices[14], v_indices[15], v_indices[16], v_indices[17], v_indices[18], v_indices[19], v_indices[20], v_indices[21], v_indices[22], v_indices[23]));
+
+
+    let added_value = Fp_add(fp1, fp2);
+    v_indices[0] = added_value.value[0];
+    v_indices[1] = added_value.value[1];
+    v_indices[2] = added_value.value[2];
+    v_indices[3] = added_value.value[3];
+    v_indices[4] = added_value.value[4];
+    v_indices[5] = added_value.value[5];
+    v_indices[6] = added_value.value[6];
+    v_indices[7] = added_value.value[7];
+    v_indices[8] = added_value.value[8];
+    v_indices[9] = added_value.value[9];
+    v_indices[10] = added_value.value[10];
+    v_indices[11] = added_value.value[11];
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn fp_subtract_test() {
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+    let fp2 = Fp(array<u32,12>(v_indices[12], v_indices[13], v_indices[14], v_indices[15], v_indices[16], v_indices[17], v_indices[18], v_indices[19], v_indices[20], v_indices[21], v_indices[22], v_indices[23]));
+
+
+    let added_value = Fp_sub(fp1, fp2);
+    v_indices[0] = added_value.value[0];
+    v_indices[1] = added_value.value[1];
+    v_indices[2] = added_value.value[2];
+    v_indices[3] = added_value.value[3];
+    v_indices[4] = added_value.value[4];
+    v_indices[5] = added_value.value[5];
+    v_indices[6] = added_value.value[6];
+    v_indices[7] = added_value.value[7];
+    v_indices[8] = added_value.value[8];
+    v_indices[9] = added_value.value[9];
+    v_indices[10] = added_value.value[10];
+    v_indices[11] = added_value.value[11];
+}
+
+
+@compute
+@workgroup_size(1,1,1)
+fn fp_neg_test() {
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+
+
+    let added_value = Fp_neg(fp1);
+    v_indices[0] = added_value.value[0];
+    v_indices[1] = added_value.value[1];
+    v_indices[2] = added_value.value[2];
+    v_indices[3] = added_value.value[3];
+    v_indices[4] = added_value.value[4];
+    v_indices[5] = added_value.value[5];
+    v_indices[6] = added_value.value[6];
+    v_indices[7] = added_value.value[7];
+    v_indices[8] = added_value.value[8];
+    v_indices[9] = added_value.value[9];
+    v_indices[10] = added_value.value[10];
+    v_indices[11] = added_value.value[11];
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn subtract_p_test() {
+
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+
+    let subtract = subtract_p(fp1);
+
+    v_indices[0] = subtract.value[0];
+    v_indices[1] = subtract.value[1];
+    v_indices[2] = subtract.value[2];
+    v_indices[3] = subtract.value[3];
+    v_indices[4] = subtract.value[4];
+    v_indices[5] = subtract.value[5];
+    v_indices[6] = subtract.value[6];
+    v_indices[7] = subtract.value[7];
+    v_indices[8] = subtract.value[8];
+    v_indices[9] = subtract.value[9];
+    v_indices[10] = subtract.value[10];
+    v_indices[11] = subtract.value[11];
+}
+

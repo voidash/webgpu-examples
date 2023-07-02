@@ -152,7 +152,7 @@ pub async fn run(source_data: &Vec<u32>, entry_point: &str) -> Vec<u32> {
 
     // timestamp_buffer.unmap();
     for out in result.iter().copied() {
-        println!("{out}");
+        // println!("{out}");
     }
     // println!(
     //     "Took: {:?}",

@@ -112,23 +112,25 @@ fn multiply(a: u32, b: u32) -> array<u32, 2> {
     let b_low: u32 = b & 0xFFFFu;
     let b_high: u32 = b >> 16u;
 
-  // Perform the multiplication
-    let product_low: u32 = a_low * b_low;
-    let product_mid: u32 = (a_low * b_high) + (a_high * b_low);
-    let product_high: u32 = a_high * b_high;
+    //      16 16
+    //    x 16 16
+    //     --------
+    // t2   t1  t0
+    // t22  t11  X
+    //-------------  
+    // t3 (t1+t2) t0
 
-  // Carry propagation
-    let carry: u32 = (product_low >> 16u) + (product_mid & 0xFFFFu);
-    let carry_high: u32 = (product_high >> 16u) + (product_mid >> 16u) + (carry >> 16u);
+    var t0 = a_low * b_low;
+    var t1 = a_low * b_high + (t0 >> 16u);
+    var t2 = t1 >> 16u;
 
-  // Assemble the result
-    let result_low: u32 = (carry << 16u) | (product_low & 0xFFFFu);
-    var result_high: u32 = carry_high + product_high;
-    if result_high > 0u {
-        result_high -= 1u;
-    }
+    t1 = (t1 & 0xFFFFu) + a_high * b_low;
+    t2 = t2 + a_high * b_high + (t1 >> 16u);
 
-    return array<u32, 2>(result_low, result_high);
+
+    let f = ((t1 & 0xffffu) << 16u) + (t0 & 0xffffu);
+
+    return array<u32, 2>(f, t2);
 }
 
 // 32 bit addition
@@ -292,7 +294,7 @@ fn montgomery_reduce(
     //for i = 0 to n-1 do
     //  ki <- (ti*N') mod b
     //  t <- t + kiNb^{i}
-    // t <- t/R (probably will be shift left)
+    // t <- t/R (will be shift right)
     // if t >= N then t <- t-N
     // return t
 
@@ -465,7 +467,7 @@ fn montgomery_reduce(
     r19 = mac(r19[0], k, MODULUS[10], r18[1]);
     r20 = mac(r20[0], k, MODULUS[11], r19[1]);
 
-    var r21 = adc(t20, rem_carry, r20[1]);
+    var r21 = adc(t21, rem_carry, r20[1]);
     rem_carry = r21[1];
 
     k = r10[0] * INV;
@@ -852,6 +854,7 @@ fn square(data: Fp) -> Fp {
     return montgomery_reduce(f0[0], f1[0], f2[0], f3[0], f4[0], f5[0], f6[0], f7[0], f8[0], f9[0], f10[0], f11[0], f12[0], f13[0], f14[0], f15[0], f1o6[0], f17[0], f18[0], f19[0], f20[0], f21[0], f22[0], f23[0]);
 }
 
+
 fn Fp_mul(lhs: Fp, rhs: Fp) -> Fp {
     var t0 = mac(0u, lhs.value[0], rhs.value[0], 0u);
     var t1 = mac(0u, lhs.value[0], rhs.value[1], t0[1]);
@@ -867,178 +870,164 @@ fn Fp_mul(lhs: Fp, rhs: Fp) -> Fp {
     var t11 = mac(0u, lhs.value[0], rhs.value[11], t10[1]);
     var temp = t11[1];
 
-    t1 = mac(t1[0], lhs.value[0], rhs.value[0], 0u);
-    t2 = mac(t2[0], lhs.value[0], rhs.value[1], t1[1]);
-    t3 = mac(t3[0], lhs.value[0], rhs.value[2], t2[1]);
-    t4 = mac(t4[0], lhs.value[0], rhs.value[3], t3[1]);
-    t5 = mac(t5[0], lhs.value[0], rhs.value[4], t4[1]);
-    t6 = mac(t6[0], lhs.value[0], rhs.value[5], t5[1]);
-    t7 = mac(t7[0], lhs.value[0], rhs.value[6], t6[1]);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[7], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[8], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[9], t9[1]);
-    t11 = mac(t11[0], lhs.value[0], rhs.value[10], t10[1]);
-    var t12 = mac(temp, lhs.value[0], rhs.value[11], t11[1]);
+    t1 = mac(t1[0], lhs.value[1], rhs.value[0], 0u);
+    t2 = mac(t2[0], lhs.value[1], rhs.value[1], t1[1]);
+    t3 = mac(t3[0], lhs.value[1], rhs.value[2], t2[1]);
+    t4 = mac(t4[0], lhs.value[1], rhs.value[3], t3[1]);
+    t5 = mac(t5[0], lhs.value[1], rhs.value[4], t4[1]);
+    t6 = mac(t6[0], lhs.value[1], rhs.value[5], t5[1]);
+    t7 = mac(t7[0], lhs.value[1], rhs.value[6], t6[1]);
+    t8 = mac(t8[0], lhs.value[1], rhs.value[7], t7[1]);
+    t9 = mac(t9[0], lhs.value[1], rhs.value[8], t8[1]);
+    t10 = mac(t10[0], lhs.value[1], rhs.value[9], t9[1]);
+    t11 = mac(t11[0], lhs.value[1], rhs.value[10], t10[1]);
+    var t12 = mac(temp, lhs.value[1], rhs.value[11], t11[1]);
     temp = t12[1];
 
-    t2 = mac(t2[0], lhs.value[0], rhs.value[0], 0u);
-    t3 = mac(t3[0], lhs.value[0], rhs.value[1], t2[1]);
-    t4 = mac(t4[0], lhs.value[0], rhs.value[2], t3[1]);
-    t5 = mac(t5[0], lhs.value[0], rhs.value[3], t4[1]);
-    t6 = mac(t6[0], lhs.value[0], rhs.value[4], t5[1]);
-    t7 = mac(t7[0], lhs.value[0], rhs.value[5], t6[1]);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[6], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[7], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[8], t9[1]);
-    t11 = mac(t11[0], lhs.value[0], rhs.value[9], t10[1]);
-    t12 = mac(t12[0], lhs.value[0], rhs.value[10], t11[1]);
-    var t13 = mac(temp, lhs.value[0], rhs.value[11], t12[1]);
+    t2 = mac(t2[0], lhs.value[2], rhs.value[0], 0u);
+    t3 = mac(t3[0], lhs.value[2], rhs.value[1], t2[1]);
+    t4 = mac(t4[0], lhs.value[2], rhs.value[2], t3[1]);
+    t5 = mac(t5[0], lhs.value[2], rhs.value[3], t4[1]);
+    t6 = mac(t6[0], lhs.value[2], rhs.value[4], t5[1]);
+    t7 = mac(t7[0], lhs.value[2], rhs.value[5], t6[1]);
+    t8 = mac(t8[0], lhs.value[2], rhs.value[6], t7[1]);
+    t9 = mac(t9[0], lhs.value[2], rhs.value[7], t8[1]);
+    t10 = mac(t10[0], lhs.value[2], rhs.value[8], t9[1]);
+    t11 = mac(t11[0], lhs.value[2], rhs.value[9], t10[1]);
+    t12 = mac(t12[0], lhs.value[2], rhs.value[10], t11[1]);
+    var t13 = mac(temp, lhs.value[2], rhs.value[11], t12[1]);
     temp = t13[1];
 
-    t3 = mac(t3[0], lhs.value[0], rhs.value[0], t2[1]);
-    t4 = mac(t4[0], lhs.value[0], rhs.value[1], t3[1]);
-    t5 = mac(t5[0], lhs.value[0], rhs.value[2], t4[1]);
-    t6 = mac(t6[0], lhs.value[0], rhs.value[3], t5[1]);
-    t7 = mac(t7[0], lhs.value[0], rhs.value[4], t6[1]);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[5], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[6], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[7], t9[1]);
-    t11 = mac(t11[0], lhs.value[0], rhs.value[8], t10[1]);
-    t12 = mac(t12[0], lhs.value[0], rhs.value[9], t11[1]);
-    t13 = mac(t13[0], lhs.value[0], rhs.value[10], t12[1]);
-    var t14 = mac(temp, lhs.value[0], rhs.value[11], t13[1]);
+    t3 = mac(t3[0], lhs.value[3], rhs.value[0], t2[1]);
+    t4 = mac(t4[0], lhs.value[3], rhs.value[1], t3[1]);
+    t5 = mac(t5[0], lhs.value[3], rhs.value[2], t4[1]);
+    t6 = mac(t6[0], lhs.value[3], rhs.value[3], t5[1]);
+    t7 = mac(t7[0], lhs.value[3], rhs.value[4], t6[1]);
+    t8 = mac(t8[0], lhs.value[3], rhs.value[5], t7[1]);
+    t9 = mac(t9[0], lhs.value[3], rhs.value[6], t8[1]);
+    t10 = mac(t10[0], lhs.value[3], rhs.value[7], t9[1]);
+    t11 = mac(t11[0], lhs.value[3], rhs.value[8], t10[1]);
+    t12 = mac(t12[0], lhs.value[3], rhs.value[9], t11[1]);
+    t13 = mac(t13[0], lhs.value[3], rhs.value[10], t12[1]);
+    var t14 = mac(temp, lhs.value[3], rhs.value[11], t13[1]);
     temp = t14[1];
 
-    t4 = mac(t4[0], lhs.value[0], rhs.value[0], 0u);
-    t5 = mac(t5[0], lhs.value[0], rhs.value[1], t4[1]);
-    t6 = mac(t6[0], lhs.value[0], rhs.value[2], t5[1]);
-    t7 = mac(t7[0], lhs.value[0], rhs.value[3], t6[1]);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[4], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[5], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[6], t9[1]);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[7], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[8], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[9], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[10], t13[1]);
-    var t15 = mac(temp, lhs.value[0], rhs.value[11], t14[1]);
+    t4 = mac(t4[0], lhs.value[4], rhs.value[0], 0u);
+    t5 = mac(t5[0], lhs.value[4], rhs.value[1], t4[1]);
+    t6 = mac(t6[0], lhs.value[4], rhs.value[2], t5[1]);
+    t7 = mac(t7[0], lhs.value[4], rhs.value[3], t6[1]);
+    t8 = mac(t8[0], lhs.value[4], rhs.value[4], t7[1]);
+    t9 = mac(t9[0], lhs.value[4], rhs.value[5], t8[1]);
+    t10 = mac(t10[0], lhs.value[4], rhs.value[6], t9[1]);
+    t11 = mac(t11[1], lhs.value[4], rhs.value[7], t10[1]);
+    t12 = mac(t12[1], lhs.value[4], rhs.value[8], t11[1]);
+    t13 = mac(t13[1], lhs.value[4], rhs.value[9], t12[1]);
+    t14 = mac(t14[1], lhs.value[4], rhs.value[10], t13[1]);
+    var t15 = mac(temp, lhs.value[4], rhs.value[11], t14[1]);
     temp = t15[1];
 
-    t5 = mac(t5[0], lhs.value[0], rhs.value[0], 0u);
-    t6 = mac(t6[0], lhs.value[0], rhs.value[1], t5[1]);
-    t7 = mac(t7[0], lhs.value[0], rhs.value[2], t6[1]);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[3], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[4], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[5], t9[1]);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[6], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[7], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[8], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[9], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[10], t14[1]);
-    var t16 = mac(temp, lhs.value[0], rhs.value[11], t15[1]);
+    t5 = mac(t5[0], lhs.value[5], rhs.value[0], 0u);
+    t6 = mac(t6[0], lhs.value[5], rhs.value[1], t5[1]);
+    t7 = mac(t7[0], lhs.value[5], rhs.value[2], t6[1]);
+    t8 = mac(t8[0], lhs.value[5], rhs.value[3], t7[1]);
+    t9 = mac(t9[0], lhs.value[5], rhs.value[4], t8[1]);
+    t10 = mac(t10[0], lhs.value[5], rhs.value[5], t9[1]);
+    t11 = mac(t11[1], lhs.value[5], rhs.value[6], t10[1]);
+    t12 = mac(t12[1], lhs.value[5], rhs.value[7], t11[1]);
+    t13 = mac(t13[1], lhs.value[5], rhs.value[8], t12[1]);
+    t14 = mac(t14[1], lhs.value[5], rhs.value[9], t13[1]);
+    t15 = mac(t15[1], lhs.value[5], rhs.value[10], t14[1]);
+    var t16 = mac(temp, lhs.value[5], rhs.value[11], t15[1]);
     temp = t16[1];
 
-    t6 = mac(t6[0], lhs.value[0], rhs.value[0], 0u);
-    t7 = mac(t7[0], lhs.value[0], rhs.value[1], t6[1]);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[2], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[3], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[4], t9[1]);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[5], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[6], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[7], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[8], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[9], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[10], t15[1]);
-    var t17 = mac(temp, lhs.value[0], rhs.value[11], t16[1]);
+    t6 = mac(t6[0], lhs.value[6], rhs.value[0], 0u);
+    t7 = mac(t7[0], lhs.value[6], rhs.value[1], t6[1]);
+    t8 = mac(t8[0], lhs.value[6], rhs.value[2], t7[1]);
+    t9 = mac(t9[0], lhs.value[6], rhs.value[3], t8[1]);
+    t10 = mac(t10[0], lhs.value[6], rhs.value[4], t9[1]);
+    t11 = mac(t11[1], lhs.value[6], rhs.value[5], t10[1]);
+    t12 = mac(t12[1], lhs.value[6], rhs.value[6], t11[1]);
+    t13 = mac(t13[1], lhs.value[6], rhs.value[7], t12[1]);
+    t14 = mac(t14[1], lhs.value[6], rhs.value[8], t13[1]);
+    t15 = mac(t15[1], lhs.value[6], rhs.value[9], t14[1]);
+    t16 = mac(t16[1], lhs.value[6], rhs.value[10], t15[1]);
+    var t17 = mac(temp, lhs.value[6], rhs.value[11], t16[1]);
     temp = t17[1];
 
-    t7 = mac(t7[0], lhs.value[0], rhs.value[0], 0u);
-    t8 = mac(t8[0], lhs.value[0], rhs.value[1], t7[1]);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[2], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[3], t9[1]);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[4], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[5], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[6], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[7], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[8], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[9], t15[1]);
-    t17 = mac(t17[1], lhs.value[0], rhs.value[10], t16[1]);
-    var t18 = mac(temp, lhs.value[0], rhs.value[11], t17[1]);
+    t7 = mac(t7[0], lhs.value[7], rhs.value[0], 0u);
+    t8 = mac(t8[0], lhs.value[7], rhs.value[1], t7[1]);
+    t9 = mac(t9[0], lhs.value[7], rhs.value[2], t8[1]);
+    t10 = mac(t10[0], lhs.value[7], rhs.value[3], t9[1]);
+    t11 = mac(t11[1], lhs.value[7], rhs.value[4], t10[1]);
+    t12 = mac(t12[1], lhs.value[7], rhs.value[5], t11[1]);
+    t13 = mac(t13[1], lhs.value[7], rhs.value[6], t12[1]);
+    t14 = mac(t14[1], lhs.value[7], rhs.value[7], t13[1]);
+    t15 = mac(t15[1], lhs.value[7], rhs.value[8], t14[1]);
+    t16 = mac(t16[1], lhs.value[7], rhs.value[9], t15[1]);
+    t17 = mac(t17[1], lhs.value[7], rhs.value[10], t16[1]);
+    var t18 = mac(temp, lhs.value[7], rhs.value[11], t17[1]);
     temp = t18[1];
 
 
-    t8 = mac(t8[0], lhs.value[0], rhs.value[0], 0u);
-    t9 = mac(t9[0], lhs.value[0], rhs.value[1], t8[1]);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[2], t9[1]);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[3], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[4], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[5], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[6], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[7], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[8], t15[1]);
-    t17 = mac(t17[1], lhs.value[0], rhs.value[9], t16[1]);
-    t18 = mac(t18[1], lhs.value[0], rhs.value[10], t17[1]);
-    var t19 = mac(temp, lhs.value[0], rhs.value[11], t18[1]);
+    t8 = mac(t8[0], lhs.value[8], rhs.value[0], 0u);
+    t9 = mac(t9[0], lhs.value[8], rhs.value[1], t8[1]);
+    t10 = mac(t10[0], lhs.value[8], rhs.value[2], t9[1]);
+    t11 = mac(t11[1], lhs.value[8], rhs.value[3], t10[1]);
+    t12 = mac(t12[1], lhs.value[8], rhs.value[4], t11[1]);
+    t13 = mac(t13[1], lhs.value[8], rhs.value[5], t12[1]);
+    t14 = mac(t14[1], lhs.value[8], rhs.value[6], t13[1]);
+    t15 = mac(t15[1], lhs.value[8], rhs.value[7], t14[1]);
+    t16 = mac(t16[1], lhs.value[8], rhs.value[8], t15[1]);
+    t17 = mac(t17[1], lhs.value[8], rhs.value[9], t16[1]);
+    t18 = mac(t18[1], lhs.value[8], rhs.value[10], t17[1]);
+    var t19 = mac(temp, lhs.value[8], rhs.value[11], t18[1]);
     temp = t19[1];
 
     // Continue the pattern for t9 to t23
 
-    t9 = mac(t9[0], lhs.value[0], rhs.value[0], 0u);
-    t10 = mac(t10[0], lhs.value[0], rhs.value[1], t9[1]);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[2], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[3], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[4], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[5], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[6], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[7], t15[1]);
-    t17 = mac(t17[1], lhs.value[0], rhs.value[8], t16[1]);
-    t18 = mac(t18[1], lhs.value[0], rhs.value[9], t17[1]);
-    t19 = mac(t19[1], lhs.value[0], rhs.value[10], t18[1]);
-    var t20 = mac(temp, lhs.value[0], rhs.value[11], t19[1]);
+    t9 = mac(t9[0], lhs.value[9], rhs.value[0], 0u);
+    t10 = mac(t10[0], lhs.value[9], rhs.value[1], t9[1]);
+    t11 = mac(t11[1], lhs.value[9], rhs.value[2], t10[1]);
+    t12 = mac(t12[1], lhs.value[9], rhs.value[3], t11[1]);
+    t13 = mac(t13[1], lhs.value[9], rhs.value[4], t12[1]);
+    t14 = mac(t14[1], lhs.value[9], rhs.value[5], t13[1]);
+    t15 = mac(t15[1], lhs.value[9], rhs.value[6], t14[1]);
+    t16 = mac(t16[1], lhs.value[9], rhs.value[7], t15[1]);
+    t17 = mac(t17[1], lhs.value[9], rhs.value[8], t16[1]);
+    t18 = mac(t18[1], lhs.value[9], rhs.value[9], t17[1]);
+    t19 = mac(t19[1], lhs.value[9], rhs.value[10], t18[1]);
+    var t20 = mac(temp, lhs.value[9], rhs.value[11], t19[1]);
     temp = t20[1];
 
-    t10 = mac(t10[0], lhs.value[0], rhs.value[0], 0u);
-    t11 = mac(t11[1], lhs.value[0], rhs.value[1], t10[1]);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[2], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[3], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[4], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[5], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[6], t15[1]);
-    t17 = mac(t17[1], lhs.value[0], rhs.value[7], t16[1]);
-    t18 = mac(t18[1], lhs.value[0], rhs.value[8], t17[1]);
-    t19 = mac(t19[1], lhs.value[0], rhs.value[9], t18[1]);
-    t20 = mac(t20[1], lhs.value[0], rhs.value[10], t19[1]);
-    var t21 = mac(temp, lhs.value[0], rhs.value[11], t20[1]);
+    t10 = mac(t10[0], lhs.value[10], rhs.value[0], 0u);
+    t11 = mac(t11[1], lhs.value[10], rhs.value[1], t10[1]);
+    t12 = mac(t12[1], lhs.value[10], rhs.value[2], t11[1]);
+    t13 = mac(t13[1], lhs.value[10], rhs.value[3], t12[1]);
+    t14 = mac(t14[1], lhs.value[10], rhs.value[4], t13[1]);
+    t15 = mac(t15[1], lhs.value[10], rhs.value[5], t14[1]);
+    t16 = mac(t16[1], lhs.value[10], rhs.value[6], t15[1]);
+    t17 = mac(t17[1], lhs.value[10], rhs.value[7], t16[1]);
+    t18 = mac(t18[1], lhs.value[10], rhs.value[8], t17[1]);
+    t19 = mac(t19[1], lhs.value[10], rhs.value[9], t18[1]);
+    t20 = mac(t20[1], lhs.value[10], rhs.value[10], t19[1]);
+    var t21 = mac(temp, lhs.value[10], rhs.value[11], t20[1]);
     temp = t21[1];
 
     // Continue the pattern for t11 to t23
 
-    t11 = mac(t11[1], lhs.value[0], rhs.value[0], 0u);
-    t12 = mac(t12[1], lhs.value[0], rhs.value[1], t11[1]);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[2], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[3], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[4], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[5], t15[1]);
-    t17 = mac(t17[1], lhs.value[0], rhs.value[6], t16[1]);
-    t18 = mac(t18[1], lhs.value[0], rhs.value[7], t17[1]);
-    t19 = mac(t19[1], lhs.value[0], rhs.value[8], t18[1]);
-    t20 = mac(t20[1], lhs.value[0], rhs.value[9], t19[1]);
-    t21 = mac(t21[1], lhs.value[0], rhs.value[10], t20[1]);
-    var t22 = mac(temp, lhs.value[0], rhs.value[11], t21[1]);
-    temp = t22[1];
+    t11 = mac(t11[1], lhs.value[11], rhs.value[0], 0u);
+    t12 = mac(t12[1], lhs.value[11], rhs.value[1], t11[1]);
+    t13 = mac(t13[1], lhs.value[11], rhs.value[2], t12[1]);
+    t14 = mac(t14[1], lhs.value[11], rhs.value[3], t13[1]);
+    t15 = mac(t15[1], lhs.value[11], rhs.value[4], t14[1]);
+    t16 = mac(t16[1], lhs.value[11], rhs.value[5], t15[1]);
+    t17 = mac(t17[1], lhs.value[11], rhs.value[6], t16[1]);
+    t18 = mac(t18[1], lhs.value[11], rhs.value[7], t17[1]);
+    t19 = mac(t19[1], lhs.value[11], rhs.value[8], t18[1]);
+    t20 = mac(t20[1], lhs.value[11], rhs.value[9], t19[1]);
+    t21 = mac(t21[1], lhs.value[11], rhs.value[10], t20[1]);
+    var t22 = mac(temp, lhs.value[11], rhs.value[11], t21[1]);
 
-    // Continue the pattern for t12 to t23
-
-    t12 = mac(t12[1], lhs.value[0], rhs.value[0], 0u);
-    t13 = mac(t13[1], lhs.value[0], rhs.value[1], t12[1]);
-    t14 = mac(t14[1], lhs.value[0], rhs.value[2], t13[1]);
-    t15 = mac(t15[1], lhs.value[0], rhs.value[3], t14[1]);
-    t16 = mac(t16[1], lhs.value[0], rhs.value[4], t15[1]);
-    t17 = mac(t17[1], lhs.value[0], rhs.value[5], t16[1]);
-    t18 = mac(t18[1], lhs.value[0], rhs.value[6], t17[1]);
-    t19 = mac(t19[1], lhs.value[0], rhs.value[7], t18[1]);
-    t20 = mac(t20[1], lhs.value[0], rhs.value[8], t19[1]);
-    t21 = mac(t21[1], lhs.value[0], rhs.value[9], t20[1]);
-    t22 = mac(t22[1], lhs.value[0], rhs.value[10], t21[1]);
 
 
     return montgomery_reduce(
@@ -1109,7 +1098,8 @@ fn multiply_test() {
 @compute
 @workgroup_size(1,1,1)
 fn mac_test() {
-    let a = mac(v_indices[0], v_indices[1], v_indices[2], v_indices[3]);
+    // let a = mac(v_indices[0], v_indices[1], v_indices[2], v_indices[3]);
+    let a = multiply(v_indices[1], v_indices[2]);
     v_indices[0] = a[0];
     v_indices[1] = a[1];
 }
@@ -1211,3 +1201,36 @@ fn subtract_p_test() {
     v_indices[11] = subtract.value[11];
 }
 
+
+@compute
+@workgroup_size(1,1,1)
+fn fp_multiply_test() {
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+    let fp2 = Fp(array<u32,12>(v_indices[12], v_indices[13], v_indices[14], v_indices[15], v_indices[16], v_indices[17], v_indices[18], v_indices[19], v_indices[20], v_indices[21], v_indices[22], v_indices[23]));
+
+
+    let added_value = Fp_mul(fp1, fp2);
+    v_indices[0] = added_value.value[0];
+    v_indices[1] = added_value.value[1];
+    v_indices[2] = added_value.value[2];
+    v_indices[3] = added_value.value[3];
+    v_indices[4] = added_value.value[4];
+    v_indices[5] = added_value.value[5];
+    v_indices[6] = added_value.value[6];
+    v_indices[7] = added_value.value[7];
+    v_indices[8] = added_value.value[8];
+    v_indices[9] = added_value.value[9];
+    v_indices[10] = added_value.value[10];
+    v_indices[11] = added_value.value[11];
+    // v_indices[12] = added_value[12];
+    // v_indices[13] = added_value[13];
+    // v_indices[14] = added_value[14];
+    // v_indices[15] = added_value[15];
+    // v_indices[16] = added_value[16];
+    // v_indices[17] = added_value[17];
+    // v_indices[18] = added_value[18];
+    // v_indices[19] = added_value[19];
+    // v_indices[20] = added_value[20];
+    // v_indices[21] = added_value[21];
+    // v_indices[22] = added_value[22];
+}

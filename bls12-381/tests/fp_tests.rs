@@ -86,11 +86,11 @@ fn adc_test() {
 #[test]
 fn mac_test() {
     // a + (b*c) + carry
-    let c = pollster::block_on(run(&vec![1, 2, 4, 5], "mac_test"));
+    let c = pollster::block_on(run(&vec![0, 0x20170cd4, 0xb1196af7, 0], "mac_test"));
     // 1 + (2 * 4) + 5;
-    assert_eq!(c[0], 14);
+    assert_eq!(c[0], 1447110796);
     // no carry
-    assert!(c[1] == 0);
+    assert_eq!(c[1], 372449159);
 }
 
 // https://gist.github.com/rust-play/3ae2c2e7f7d1483b9fe6b0c1b0410684
@@ -170,4 +170,29 @@ fn sbb_test() {
     // wrapping subtraction
     // assert_eq!(c[0], 994288274);
     // assert!(c[1] == 0);
+}
+
+#[test]
+fn fp_multiply_test() {
+    let d1: Vec<u32> = vec![
+        0x20170cd4, 0x397a383, 0x9e761d30, 0x734c1b2c, 0x9a48beb5, 0x5ed255ad, 0x22a7fcfc,
+        0x95a3c6b, 0xd4e26a27, 0x2294ce75, 0x70011ebb, 0x13338bd8,
+    ];
+
+    let d2: Vec<u32> = vec![
+        0xb1196af7, 0xb9c3c7c5, 0x6ce335c1, 0x2580e208, 0x8a57ef42, 0xf49aed3d, 0x9846e878,
+        0x41f281e4, 0xc38452ce, 0xe0762346, 0x26e57dc0, 0x652e893,
+    ];
+
+    let expected_output: Vec<u32> = vec![
+        0x11ab5355, 0xf96ef3d7, 0xf148dd, 0xe8d459ea, 0x5f00fa78, 0x53f7354a, 0x125c5f83,
+        0x9e34a4f3, 0xca74c19e, 0x3fbe0c47, 0xbd4adfe4, 0x1b06a8b,
+    ];
+
+    let c = pollster::block_on(run(
+        &d1.into_iter().chain(d2.into_iter()).collect::<Vec<u32>>(),
+        "fp_multiply_test",
+    ));
+
+    assert_eq!(c[0..=11], expected_output);
 }

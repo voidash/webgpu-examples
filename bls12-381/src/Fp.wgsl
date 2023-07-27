@@ -221,6 +221,14 @@ fn Fp_add(lhs: Fp, rhs: Fp) -> Fp {
     return subtract_p(final_fp);
 }
 
+// returns a.zip(b).fold(0,|acc, (a_i,b_i| acc + a_i * b_i )
+fn Fp_sum_of_products() {
+    for (var j = 0u; j < 12u; j++) {
+        for (var i = j; i < 12u ; i++) {
+        }
+    }
+}
+
 fn Fp_neg(data: Fp) -> Fp {
     let r1_a = sbb(MODULUS[0], data.value[0], 0u);
     let r2_a = sbb(MODULUS[1], data.value[1], r1_a[1]);
@@ -672,7 +680,7 @@ fn pow_vartime(data: Fp, by: array<u32,12>) -> Fp {
     return res;
 } 
 
-fn sqrt(data: Fp) -> Fp {
+fn Fp_sqrt(data: Fp) -> Fp {
 
     // p + 1 // 4
     let sqrt = pow_vartime(data, array<u32,12>(
@@ -693,7 +701,7 @@ fn sqrt(data: Fp) -> Fp {
     return sqrt;
 }
 
-fn invert(data: Fp) -> Fp {
+fn Fp_invert(data: Fp) -> Fp {
     // exponentiate by p-2
     let d = array<u32,12>(
         0xffffaaa9u,
@@ -958,13 +966,13 @@ fn Fp_mul(lhs: Fp, rhs: Fp) -> Fp {
     t8 = mac(t8[0], lhs.value[7], rhs.value[1], t7[1]);
     t9 = mac(t9[0], lhs.value[7], rhs.value[2], t8[1]);
     t10 = mac(t10[0], lhs.value[7], rhs.value[3], t9[1]);
-    t11 = mac(t11[1], lhs.value[7], rhs.value[4], t10[1]);
-    t12 = mac(t12[1], lhs.value[7], rhs.value[5], t11[1]);
-    t13 = mac(t13[1], lhs.value[7], rhs.value[6], t12[1]);
-    t14 = mac(t14[1], lhs.value[7], rhs.value[7], t13[1]);
-    t15 = mac(t15[1], lhs.value[7], rhs.value[8], t14[1]);
-    t16 = mac(t16[1], lhs.value[7], rhs.value[9], t15[1]);
-    t17 = mac(t17[1], lhs.value[7], rhs.value[10], t16[1]);
+    t11 = mac(t11[0], lhs.value[7], rhs.value[4], t10[1]);
+    t12 = mac(t12[0], lhs.value[7], rhs.value[5], t11[1]);
+    t13 = mac(t13[0], lhs.value[7], rhs.value[6], t12[1]);
+    t14 = mac(t14[0], lhs.value[7], rhs.value[7], t13[1]);
+    t15 = mac(t15[0], lhs.value[7], rhs.value[8], t14[1]);
+    t16 = mac(t16[0], lhs.value[7], rhs.value[9], t15[1]);
+    t17 = mac(t17[0], lhs.value[7], rhs.value[10], t16[1]);
     var t18 = mac(temp, lhs.value[7], rhs.value[11], t17[1]);
     temp = t18[1];
 
@@ -972,14 +980,14 @@ fn Fp_mul(lhs: Fp, rhs: Fp) -> Fp {
     t8 = mac(t8[0], lhs.value[8], rhs.value[0], 0u);
     t9 = mac(t9[0], lhs.value[8], rhs.value[1], t8[1]);
     t10 = mac(t10[0], lhs.value[8], rhs.value[2], t9[1]);
-    t11 = mac(t11[1], lhs.value[8], rhs.value[3], t10[1]);
-    t12 = mac(t12[1], lhs.value[8], rhs.value[4], t11[1]);
-    t13 = mac(t13[1], lhs.value[8], rhs.value[5], t12[1]);
-    t14 = mac(t14[1], lhs.value[8], rhs.value[6], t13[1]);
-    t15 = mac(t15[1], lhs.value[8], rhs.value[7], t14[1]);
-    t16 = mac(t16[1], lhs.value[8], rhs.value[8], t15[1]);
-    t17 = mac(t17[1], lhs.value[8], rhs.value[9], t16[1]);
-    t18 = mac(t18[1], lhs.value[8], rhs.value[10], t17[1]);
+    t11 = mac(t11[0], lhs.value[8], rhs.value[3], t10[1]);
+    t12 = mac(t12[0], lhs.value[8], rhs.value[4], t11[1]);
+    t13 = mac(t13[0], lhs.value[8], rhs.value[5], t12[1]);
+    t14 = mac(t14[0], lhs.value[8], rhs.value[6], t13[1]);
+    t15 = mac(t15[0], lhs.value[8], rhs.value[7], t14[1]);
+    t16 = mac(t16[0], lhs.value[8], rhs.value[8], t15[1]);
+    t17 = mac(t17[0], lhs.value[8], rhs.value[9], t16[1]);
+    t18 = mac(t18[0], lhs.value[8], rhs.value[10], t17[1]);
     var t19 = mac(temp, lhs.value[8], rhs.value[11], t18[1]);
     temp = t19[1];
 
@@ -987,45 +995,45 @@ fn Fp_mul(lhs: Fp, rhs: Fp) -> Fp {
 
     t9 = mac(t9[0], lhs.value[9], rhs.value[0], 0u);
     t10 = mac(t10[0], lhs.value[9], rhs.value[1], t9[1]);
-    t11 = mac(t11[1], lhs.value[9], rhs.value[2], t10[1]);
-    t12 = mac(t12[1], lhs.value[9], rhs.value[3], t11[1]);
-    t13 = mac(t13[1], lhs.value[9], rhs.value[4], t12[1]);
-    t14 = mac(t14[1], lhs.value[9], rhs.value[5], t13[1]);
-    t15 = mac(t15[1], lhs.value[9], rhs.value[6], t14[1]);
-    t16 = mac(t16[1], lhs.value[9], rhs.value[7], t15[1]);
-    t17 = mac(t17[1], lhs.value[9], rhs.value[8], t16[1]);
-    t18 = mac(t18[1], lhs.value[9], rhs.value[9], t17[1]);
-    t19 = mac(t19[1], lhs.value[9], rhs.value[10], t18[1]);
+    t11 = mac(t11[0], lhs.value[9], rhs.value[2], t10[1]);
+    t12 = mac(t12[0], lhs.value[9], rhs.value[3], t11[1]);
+    t13 = mac(t13[0], lhs.value[9], rhs.value[4], t12[1]);
+    t14 = mac(t14[0], lhs.value[9], rhs.value[5], t13[1]);
+    t15 = mac(t15[0], lhs.value[9], rhs.value[6], t14[1]);
+    t16 = mac(t16[0], lhs.value[9], rhs.value[7], t15[1]);
+    t17 = mac(t17[0], lhs.value[9], rhs.value[8], t16[1]);
+    t18 = mac(t18[0], lhs.value[9], rhs.value[9], t17[1]);
+    t19 = mac(t19[0], lhs.value[9], rhs.value[10], t18[1]);
     var t20 = mac(temp, lhs.value[9], rhs.value[11], t19[1]);
     temp = t20[1];
 
     t10 = mac(t10[0], lhs.value[10], rhs.value[0], 0u);
-    t11 = mac(t11[1], lhs.value[10], rhs.value[1], t10[1]);
-    t12 = mac(t12[1], lhs.value[10], rhs.value[2], t11[1]);
-    t13 = mac(t13[1], lhs.value[10], rhs.value[3], t12[1]);
-    t14 = mac(t14[1], lhs.value[10], rhs.value[4], t13[1]);
-    t15 = mac(t15[1], lhs.value[10], rhs.value[5], t14[1]);
-    t16 = mac(t16[1], lhs.value[10], rhs.value[6], t15[1]);
-    t17 = mac(t17[1], lhs.value[10], rhs.value[7], t16[1]);
-    t18 = mac(t18[1], lhs.value[10], rhs.value[8], t17[1]);
-    t19 = mac(t19[1], lhs.value[10], rhs.value[9], t18[1]);
-    t20 = mac(t20[1], lhs.value[10], rhs.value[10], t19[1]);
+    t11 = mac(t11[0], lhs.value[10], rhs.value[1], t10[1]);
+    t12 = mac(t12[0], lhs.value[10], rhs.value[2], t11[1]);
+    t13 = mac(t13[0], lhs.value[10], rhs.value[3], t12[1]);
+    t14 = mac(t14[0], lhs.value[10], rhs.value[4], t13[1]);
+    t15 = mac(t15[0], lhs.value[10], rhs.value[5], t14[1]);
+    t16 = mac(t16[0], lhs.value[10], rhs.value[6], t15[1]);
+    t17 = mac(t17[0], lhs.value[10], rhs.value[7], t16[1]);
+    t18 = mac(t18[0], lhs.value[10], rhs.value[8], t17[1]);
+    t19 = mac(t19[0], lhs.value[10], rhs.value[9], t18[1]);
+    t20 = mac(t20[0], lhs.value[10], rhs.value[10], t19[1]);
     var t21 = mac(temp, lhs.value[10], rhs.value[11], t20[1]);
     temp = t21[1];
 
     // Continue the pattern for t11 to t23
 
-    t11 = mac(t11[1], lhs.value[11], rhs.value[0], 0u);
-    t12 = mac(t12[1], lhs.value[11], rhs.value[1], t11[1]);
-    t13 = mac(t13[1], lhs.value[11], rhs.value[2], t12[1]);
-    t14 = mac(t14[1], lhs.value[11], rhs.value[3], t13[1]);
-    t15 = mac(t15[1], lhs.value[11], rhs.value[4], t14[1]);
-    t16 = mac(t16[1], lhs.value[11], rhs.value[5], t15[1]);
-    t17 = mac(t17[1], lhs.value[11], rhs.value[6], t16[1]);
-    t18 = mac(t18[1], lhs.value[11], rhs.value[7], t17[1]);
-    t19 = mac(t19[1], lhs.value[11], rhs.value[8], t18[1]);
-    t20 = mac(t20[1], lhs.value[11], rhs.value[9], t19[1]);
-    t21 = mac(t21[1], lhs.value[11], rhs.value[10], t20[1]);
+    t11 = mac(t11[0], lhs.value[11], rhs.value[0], 0u);
+    t12 = mac(t12[0], lhs.value[11], rhs.value[1], t11[1]);
+    t13 = mac(t13[0], lhs.value[11], rhs.value[2], t12[1]);
+    t14 = mac(t14[0], lhs.value[11], rhs.value[3], t13[1]);
+    t15 = mac(t15[0], lhs.value[11], rhs.value[4], t14[1]);
+    t16 = mac(t16[0], lhs.value[11], rhs.value[5], t15[1]);
+    t17 = mac(t17[0], lhs.value[11], rhs.value[6], t16[1]);
+    t18 = mac(t18[0], lhs.value[11], rhs.value[7], t17[1]);
+    t19 = mac(t19[0], lhs.value[11], rhs.value[8], t18[1]);
+    t20 = mac(t20[0], lhs.value[11], rhs.value[9], t19[1]);
+    t21 = mac(t21[0], lhs.value[11], rhs.value[10], t20[1]);
     var t22 = mac(temp, lhs.value[11], rhs.value[11], t21[1]);
 
 
@@ -1222,15 +1230,6 @@ fn fp_multiply_test() {
     v_indices[9] = added_value.value[9];
     v_indices[10] = added_value.value[10];
     v_indices[11] = added_value.value[11];
-    // v_indices[12] = added_value[12];
-    // v_indices[13] = added_value[13];
-    // v_indices[14] = added_value[14];
-    // v_indices[15] = added_value[15];
-    // v_indices[16] = added_value[16];
-    // v_indices[17] = added_value[17];
-    // v_indices[18] = added_value[18];
-    // v_indices[19] = added_value[19];
-    // v_indices[20] = added_value[20];
-    // v_indices[21] = added_value[21];
-    // v_indices[22] = added_value[22];
 }
+
+

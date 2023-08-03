@@ -29,7 +29,7 @@ pub fn sum(lhs: &str, rhs: &str) -> Vec<u32> {
 
     // let value = l1_len_vec.into_iter().chain(l1.into_iter()).chain(r1_len_vec.into_iter()).chain(r1.into_iter()).collect::<Vec<u32>>();
 
-    pollster::block_on(run(&l1,&r1, "bigint_sum_test"))
+    pollster::block_on(run(&l1,&r1, "bigint_sum"))
 }
 
 pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> Vec<u32> {

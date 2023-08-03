@@ -52,8 +52,45 @@ fn sum(a: u32, b: u32) -> array<u32,2> {
     return array<u32,2>(sum, carry);
 }
 
+fn adc(a: u32, b: u32, carry: u32) -> array<u32,2> {
+    let ab = sum(a, b);
+    let abc = sum(ab[0], carry);
+
+    let ck = ab[1] + abc[1];
+
+    return array<u32,2>(abc[0], ck);
+} 
+
+@compute
+@workgroup_size(1,1,1)
 fn bigint_sum() {
+    // get the smallest array 
+    // then keep adding and keep making carry until smallest array finishes iterating 
+    let a1 = arrayLength(&v_indices);
+    let a2 = arrayLength(&v_indices2);
+
+    var fv = 0;
+    var sm = a1;
+    if (a1 > a2) {
+        sm = a2;
+    }
+
+    {
+    var i = 0;
+    loop{
+        let value = adc(v_indices[i], v_indices2[i],fv);
+        if (a1 < a2) {
+            v_indices[i] = value[0];
+        }else {
+            v_indices2[i] = value[1];
+        }
+        fv = value[1];
+        if i >= a1 { break; }
+        i+=1;
+    }
+    }
 }
+
 
 @compute
 @workgroup_size(1,1,1)
@@ -71,15 +108,5 @@ fn sum_test() {
     v_indices[1] = a[1];
 }
 
-@compute
-@workgroup_size(1,1,1)
-fn bigint_sum_test() {
-    // let l1_len = v_indices[0];
-    // v_indices2[0] = 13u;
-    v_indices[0] = 13u;
-    v_indices2[0] = 34u;
-
-    // bigint_sum(v_indices[0], v_indices[1]);
-}
 
 

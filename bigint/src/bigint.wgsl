@@ -2,7 +2,7 @@
 @binding(0)
 var<storage, read_write> v_indices: array<u32>; // this is used as both input and output for convenience
 
-@group(0)
+@group(1)
 @binding(1)
 var<storage, read_write> v_indices2: array<u32>; // this is used as both input and output for convenience
 
@@ -74,7 +74,10 @@ fn sum_test() {
 @compute
 @workgroup_size(1,1,1)
 fn bigint_sum_test() {
-    let l1_len = v_indices[0];
+    // let l1_len = v_indices[0];
+    // v_indices2[0] = 13u;
+    v_indices[0] = 13u;
+    v_indices2[0] = 34u;
 
     // bigint_sum(v_indices[0], v_indices[1]);
 }

@@ -41,7 +41,7 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         .flat_map(u32::to_ne_bytes)
         .collect::<Vec<_>>();
 
-    let src2: Vec<u8> = source1
+    let src2: Vec<u8> = source2
         .clone()
         .into_iter()
         .flat_map(u32::to_ne_bytes)
@@ -91,11 +91,24 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
             },
         }],
     });
+    let bind_group_layout_2 = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: None,
+        entries: &[wgpu::BindGroupLayoutEntry {
+            binding: 1,
+            count: None,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer {
+                has_dynamic_offset: false,
+                min_binding_size: None,
+                ty: wgpu::BufferBindingType::Storage { read_only: false },
+            },
+        }],
+    });
 
     let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("pipeline_layout"),
         // defines the interface between a set of resources bound in GPUBindGroup
-        bind_group_layouts: &[&bind_group_layout],
+        bind_group_layouts: &[&bind_group_layout, &bind_group_layout_2],
         push_constant_ranges: &[],
     });
 
@@ -108,7 +121,15 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
 
     let readback_buffer = device.create_buffer(&wgpu::BufferDescriptor {
         label: None,
-        size: total_src_sum as wgpu::BufferAddress,
+        size: src1.len() as wgpu::BufferAddress,
+        // can be read to CPU, and can be copied from storage buffer
+        usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+
+    let readback_buffer2 = device.create_buffer(&wgpu::BufferDescriptor {
+        label: None,
+        size: src2.len() as wgpu::BufferAddress,
         // can be read to CPU, and can be copied from storage buffer
         usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
         mapped_at_creation: false,
@@ -123,7 +144,7 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     });
 
     let s2_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
-        label: Some("Fp write"),
+        label: Some("Fp write2"),
         contents: &src2,
         usage: wgpu::BufferUsages::STORAGE
             | wgpu::BufferUsages::COPY_DST
@@ -145,7 +166,13 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         wgpu::BindGroupEntry {
             binding: 0,
             resource: s1_buffer.as_entire_binding(),
-        },
+        }
+        ],
+    });
+    let bind_group_2 = device.create_bind_group(&wgpu::BindGroupDescriptor {
+        label: None,
+        layout: &bind_group_layout_2,
+        entries: &[
         wgpu::BindGroupEntry {
             binding: 1,
             resource: s2_buffer.as_entire_binding(),
@@ -166,6 +193,7 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     {
         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
         cpass.set_bind_group(0, &bind_group, &[]);
+        cpass.set_bind_group(1, &bind_group_2, &[]);
         cpass.set_pipeline(&compute_pipeline);
         // cpass.write_timestamp(&queries, 0);
         // this makes the local invocation id and workgroup Size
@@ -178,7 +206,15 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         0,
         &readback_buffer,
         0,
-        total_src_sum as wgpu::BufferAddress,
+        src1.len() as wgpu::BufferAddress,
+    );
+
+    encoder.copy_buffer_to_buffer(
+        &s2_buffer,
+        0,
+        &readback_buffer2,
+        0,
+        src2.len() as wgpu::BufferAddress,
     );
     // encoder.resolve_query_set(&queries, 0..2, &timestamp_buffer, 0);
 
@@ -187,12 +223,21 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     // let timestamp_slice = timestamp_buffer.slice(..);
     // timestamp_slice.map_async(wgpu::MapMode::Read, |r| r.unwrap());
     buffer_slice.map_async(wgpu::MapMode::Read, |r| r.unwrap());
-
+    let buffer_slice2 = readback_buffer2.slice(..);
+    // let timestamp_slice = timestamp_buffer.slice(..);
+        // timestamp_slice.map_async(wgpu::MapMode::Read, |r| r.unwrap());
+    buffer_slice2.map_async(wgpu::MapMode::Read, |r| r.unwrap());
     device.poll(wgpu::Maintain::Wait);
 
     let data = buffer_slice.get_mapped_range();
+    let data2 = buffer_slice2.get_mapped_range();
     // let timing_data = timestamp_slice.get_mapped_range();
     let result = data
+        .chunks_exact(4)
+        .map(|b| u32::from_ne_bytes(b.try_into().unwrap()))
+        .collect::<Vec<_>>();
+
+    let result2 = data2
         .chunks_exact(4)
         .map(|b| u32::from_ne_bytes(b.try_into().unwrap()))
         .collect::<Vec<_>>();
@@ -202,10 +247,16 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     //     .collect::<Vec<_>>();
 
     drop(data);
+    drop(data2);
     readback_buffer.unmap();
+    readback_buffer2.unmap();
 
     // timestamp_buffer.unmap();
     for out in result.iter().copied() {
+        println!("{out}");
+    }
+    println!(" ");
+    for out in result2.iter().copied() {
         println!("{out}");
     }
     // println!(

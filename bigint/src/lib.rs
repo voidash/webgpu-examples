@@ -29,7 +29,7 @@ pub fn sum(lhs: &str, rhs: &str) -> Vec<u32> {
 
     // let value = l1_len_vec.into_iter().chain(l1.into_iter()).chain(r1_len_vec.into_iter()).chain(r1.into_iter()).collect::<Vec<u32>>();
 
-    pollster::block_on(run(&l1,&r1, "bigint_sum"))
+    return pollster::block_on(run(&l1,&r1, "bigint_sum"));
 }
 
 pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> Vec<u32> {
@@ -251,13 +251,10 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     readback_buffer.unmap();
     readback_buffer2.unmap();
 
+    let mut final_vec: Vec<u32> = Vec::new();
     // timestamp_buffer.unmap();
-    for out in result.iter().copied() {
-        println!("{out}");
-    }
-    println!(" ");
-    for out in result2.iter().copied() {
-        println!("{out}");
+    for (a1,a2)in result.iter().zip(result2.iter()) {
+        final_vec.push(a1 + a2);
     }
     // println!(
     //     "Took: {:?}",
@@ -265,5 +262,5 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     //         ((timings[1] - timings[0]) as f64 * f64::from(timestamp_period)) as u64
     //     )
     // );
-    return result;
+    return final_vec;
 }

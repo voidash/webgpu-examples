@@ -9,7 +9,8 @@ fn bigint_conversion_test() {
 #[test]
 fn bigint_sum_test() {
     use bigint_wgpu::sum;
-    let lhs = "1";
-    let rhs = "12234";
+    let lhs = "123234234234234234234234234232342342344";
+    let rhs = "1223422342343242342234234234234123423423";
     let val = sum(lhs,rhs);
+    assert_eq!(val, vec![3271162247,4273361191,1425034138,4112293728]);
 }

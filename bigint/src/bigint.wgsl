@@ -69,27 +69,48 @@ fn bigint_sum() {
     let a1 = arrayLength(&v_indices);
     let a2 = arrayLength(&v_indices2);
 
-    var fv = 0;
+    var fv = 0u;
     var sm = a1;
+    var bg = a2;
+
     if (a1 > a2) {
         sm = a2;
+        bg = a1;
     }
 
-    {
-    var i = 0;
-    loop{
-        let value = adc(v_indices[i], v_indices2[i],fv);
+    var i = 0u;
+    for (i = 0u; i < sm; i=i+1u) {
+        var val = adc(v_indices[i], v_indices2[i],fv);
         if (a1 < a2) {
-            v_indices[i] = value[0];
+            v_indices[i] = val[0];
+            v_indices2[i] = 0u;
         }else {
-            v_indices2[i] = value[1];
+            v_indices2[i] = val[0];
+            v_indices[i] = 0u;
         }
-        fv = value[1];
-        if i >= a1 { break; }
-        i+=1;
+        fv = val[1];
     }
+    if (a1 > a2) {
+        var s = sum(v_indices[i],fv);
+        v_indices[sm] = s[0];
+        v_indices[sm+1u] = v_indices[sm+1u]+s[1];
+    }else {
+        var s = sum(v_indices2[i],fv);
+        v_indices2[sm] = s[0];
+        v_indices2[sm+1u] = v_indices2[sm+1u]+s[1];
     }
+
+    // for(i=sm+2u; i < bg ;i++) {
+    //     if( a1 < a2) {
+    //         v_indices2[i] = 0u;
+    //     }else{
+    //         v_indices[i] = 0u;
+    //     }
+    // }
+
+    
 }
+
 
 
 @compute

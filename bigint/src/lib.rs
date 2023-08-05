@@ -17,6 +17,21 @@ pub fn bigint_convert(source: &str) -> Vec<u32> {
     return source.parse::<BigUint>().unwrap().to_u32_digits()
 }
 
+pub fn multiply(lhs: &str, rhs: &str) -> Vec<u32> {
+    let l1 =  bigint_convert(lhs);
+    let r1 = bigint_convert(rhs);
+
+    // let mut l1_len_vec : Vec<u32> = Vec::new();
+    // let mut r1_len_vec : Vec<u32> = Vec::new();
+
+    // l1_len_vec.push(l1.len() as u32);
+    // r1_len_vec.push(r1.len() as u32);
+
+    // let value = l1_len_vec.into_iter().chain(l1.into_iter()).chain(r1_len_vec.into_iter()).chain(r1.into_iter()).collect::<Vec<u32>>();
+
+    return pollster::block_on(run(&l1,&r1, "bigint_multiply"));
+}
+
 pub fn sum(lhs: &str, rhs: &str) -> Vec<u32> {
     let l1 =  bigint_convert(lhs);
     let r1 = bigint_convert(rhs);
@@ -33,7 +48,9 @@ pub fn sum(lhs: &str, rhs: &str) -> Vec<u32> {
 }
 
 pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> Vec<u32> {
-    let total_src_sum = source1.len() + source2.len();
+    let total_src_sum = source1.len() + source2.len() + 1;
+    let output_vec : Vec<u32> = vec![0;total_src_sum];
+
     // native endian bytes
     let src1: Vec<u8> = source1
         .clone()
@@ -47,10 +64,17 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         .flat_map(u32::to_ne_bytes)
         .collect::<Vec<_>>();
 
+    let src3: Vec<u8> = output_vec
+        .clone()
+        .into_iter()
+        .flat_map(u32::to_ne_bytes)
+        .collect::<Vec<_>>();
+
     let instance = wgpu::Instance::new(wgpu::InstanceDescriptor {
         backends: wgpu::Backends::all(),
         dx12_shader_compiler: Default::default(),
     });
+
     let adapter = instance
         .request_adapter(&wgpu::RequestAdapterOptions {
             power_preference: wgpu::PowerPreference::default(),
@@ -104,11 +128,24 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
             },
         }],
     });
+  let bind_group_layout_3 = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
+        label: None,
+        entries: &[wgpu::BindGroupLayoutEntry {
+            binding: 2,
+            count: None,
+            visibility: wgpu::ShaderStages::COMPUTE,
+            ty: wgpu::BindingType::Buffer {
+                has_dynamic_offset: false,
+                min_binding_size: None,
+                ty: wgpu::BufferBindingType::Storage { read_only: false },
+            },
+        }],
+    });
 
     let layout = device.create_pipeline_layout(&wgpu::PipelineLayoutDescriptor {
         label: Some("pipeline_layout"),
         // defines the interface between a set of resources bound in GPUBindGroup
-        bind_group_layouts: &[&bind_group_layout, &bind_group_layout_2],
+        bind_group_layouts: &[&bind_group_layout, &bind_group_layout_2, &bind_group_layout_3],
         push_constant_ranges: &[],
     });
 
@@ -135,6 +172,14 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         mapped_at_creation: false,
     });
 
+    let readback_buffer3 = device.create_buffer(&wgpu::BufferDescriptor {
+        label: None,
+        size: src3.len() as wgpu::BufferAddress,
+        // can be read to CPU, and can be copied from storage buffer
+        usage: wgpu::BufferUsages::MAP_READ | wgpu::BufferUsages::COPY_DST,
+        mapped_at_creation: false,
+    });
+
     let s1_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
         label: Some("Fp write"),
         contents: &src1,
@@ -150,6 +195,15 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
             | wgpu::BufferUsages::COPY_DST
             | wgpu::BufferUsages::COPY_SRC,
     });
+
+    let s3_buffer = device.create_buffer_init(&wgpu::util::BufferInitDescriptor {
+        label: Some("Fp write3"),
+        contents: &src3,
+        usage: wgpu::BufferUsages::STORAGE
+            | wgpu::BufferUsages::COPY_DST
+            | wgpu::BufferUsages::COPY_SRC,
+    });
+
 
     // let timestamp_buffer = device.create_buffer(&wgpu::BufferDescriptor {
     //     label: Some("Timestamps buffer"),
@@ -180,6 +234,16 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         ],
     });
 
+    let bind_group_3= device.create_bind_group(&wgpu::BindGroupDescriptor {
+            label: None,
+            layout: &bind_group_layout_3,
+            entries: &[
+            wgpu::BindGroupEntry {
+                binding: 2,
+                resource: s3_buffer.as_entire_binding(),
+            }
+            ],
+        });
 
     // let queries = device.create_query_set(&wgpu::QuerySetDescriptor {
     //     label: None,
@@ -194,6 +258,7 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         let mut cpass = encoder.begin_compute_pass(&wgpu::ComputePassDescriptor { label: None });
         cpass.set_bind_group(0, &bind_group, &[]);
         cpass.set_bind_group(1, &bind_group_2, &[]);
+        cpass.set_bind_group(2, &bind_group_3, &[]);
         cpass.set_pipeline(&compute_pipeline);
         // cpass.write_timestamp(&queries, 0);
         // this makes the local invocation id and workgroup Size
@@ -216,6 +281,14 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         0,
         src2.len() as wgpu::BufferAddress,
     );
+
+    encoder.copy_buffer_to_buffer(
+        &s3_buffer,
+        0,
+        &readback_buffer3,
+        0,
+        src3.len() as wgpu::BufferAddress,
+    );
     // encoder.resolve_query_set(&queries, 0..2, &timestamp_buffer, 0);
 
     queue.submit(Some(encoder.finish()));
@@ -227,10 +300,17 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     // let timestamp_slice = timestamp_buffer.slice(..);
         // timestamp_slice.map_async(wgpu::MapMode::Read, |r| r.unwrap());
     buffer_slice2.map_async(wgpu::MapMode::Read, |r| r.unwrap());
+
+    let buffer_slice3 = readback_buffer3.slice(..);
+    // let timestamp_slice = timestamp_buffer.slice(..);
+        // timestamp_slice.map_async(wgpu::MapMode::Read, |r| r.unwrap());
+    buffer_slice3.map_async(wgpu::MapMode::Read, |r| r.unwrap());
+
     device.poll(wgpu::Maintain::Wait);
 
     let data = buffer_slice.get_mapped_range();
     let data2 = buffer_slice2.get_mapped_range();
+    let data3 = buffer_slice3.get_mapped_range();
     // let timing_data = timestamp_slice.get_mapped_range();
     let result = data
         .chunks_exact(4)
@@ -241,6 +321,11 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
         .chunks_exact(4)
         .map(|b| u32::from_ne_bytes(b.try_into().unwrap()))
         .collect::<Vec<_>>();
+
+    let result3 = data3
+        .chunks_exact(4)
+        .map(|b| u32::from_ne_bytes(b.try_into().unwrap()))
+        .collect::<Vec<_>>();
     // let timings = timing_data
     //     .chunks_exact(8)
     //     .map(|b| u64::from_ne_bytes(b.try_into().unwrap()))
@@ -248,14 +333,22 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
 
     drop(data);
     drop(data2);
+    drop(data3);
     readback_buffer.unmap();
     readback_buffer2.unmap();
+    readback_buffer3.unmap();
 
     let mut final_vec: Vec<u32> = Vec::new();
     // timestamp_buffer.unmap();
     for (a1,a2)in result.iter().zip(result2.iter()) {
         final_vec.push(a1 + a2);
     }
+
+    for a in result3.iter() {
+        println!("{}", a);
+    }
+
+
     // println!(
     //     "Took: {:?}",
     //     Duration::from_nanos(

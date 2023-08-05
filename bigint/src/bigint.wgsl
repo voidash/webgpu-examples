@@ -6,6 +6,11 @@ var<storage, read_write> v_indices: array<u32>; // this is used as both input an
 @binding(1)
 var<storage, read_write> v_indices2: array<u32>; // this is used as both input and output for convenience
 
+@group(2)
+@binding(2)
+var<storage, read_write> out: array<u32>;
+
+
 // multiply operation
 fn multiply(a: u32, b: u32) -> array<u32, 2> {
   // Split a and b into lower and upper 16 bits
@@ -35,6 +40,18 @@ fn multiply(a: u32, b: u32) -> array<u32, 2> {
     return array<u32, 2>(f, t2);
 }
 
+fn mac(a: u32, b: u32, c: u32, carry: u32) -> array<u32,2> {
+    let bc_multiply = multiply(b, c);
+    let bc_total = sum(bc_multiply[0], carry);
+
+
+    let a_bc_sum = sum(a, bc_total[0]);
+
+    let carry = bc_total[1] + bc_multiply[1] + a_bc_sum[1];
+
+    return array<u32,2>(a_bc_sum[0], carry);
+}
+
 // 32 bit addition
 fn sum(a: u32, b: u32) -> array<u32,2> {
     let a_31bit = a & 0x7fffffffu;
@@ -60,6 +77,24 @@ fn adc(a: u32, b: u32, carry: u32) -> array<u32,2> {
 
     return array<u32,2>(abc[0], ck);
 } 
+
+@compute
+@workgroup_size(1,1,1) 
+fn bigint_multiply() {
+    // let size = arrayLength(&v_indices) + arrayLength(&v_indices2);
+    // var mul : array<u32,size>;
+
+    var carry = 0u;
+    var m = 0u;
+    for (var i = 0u ; i <= arrayLength(&v_indices); i++ ) {
+        for( var j = 0u ; j <= arrayLength(&v_indices2); j++) {
+            var data = mac(out[m+j],v_indices[i],v_indices2[j],carry);
+            out[m+j] = data[0];
+            carry = data[1];
+        }
+        m++;
+    }
+}
 
 @compute
 @workgroup_size(1,1,1)

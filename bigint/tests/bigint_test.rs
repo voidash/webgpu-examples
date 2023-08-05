@@ -14,3 +14,12 @@ fn bigint_sum_test() {
     let val = sum(lhs,rhs);
     assert_eq!(val, vec![3271162247,4273361191,1425034138,4112293728]);
 }
+
+
+#[test]
+fn bigint_multiply_test() {
+    use bigint_wgpu::multiply;
+    let lhs = "12345678";
+    let rhs = "12345678";
+    let val = multiply(lhs, rhs);
+}

@@ -44,7 +44,6 @@ fn mac(a: u32, b: u32, c: u32, carry: u32) -> array<u32,2> {
     let bc_multiply = multiply(b, c);
     let bc_total = sum(bc_multiply[0], carry);
 
-
     let a_bc_sum = sum(a, bc_total[0]);
 
     let carry = bc_total[1] + bc_multiply[1] + a_bc_sum[1];
@@ -98,6 +97,12 @@ fn bigint_multiply() {
 
 @compute
 @workgroup_size(1,1,1)
+fn montgomery_reduce() {
+    
+}
+
+@compute
+@workgroup_size(1,1,1)
 fn bigint_sum() {
     // get the smallest array 
     // then keep adding and keep making carry until smallest array finishes iterating 
@@ -123,29 +128,26 @@ fn bigint_sum() {
             v_indices2[i] = val[0];
             v_indices[i] = 0u;
         }
+        out[i] = val[0];
         fv = val[1];
     }
     if (a1 > a2) {
         var s = sum(v_indices[i],fv);
+        out[sm] = s[0];
+        out[sm+1u] = v_indices[sm+1u]+s[1];
+
         v_indices[sm] = s[0];
         v_indices[sm+1u] = v_indices[sm+1u]+s[1];
     }else {
         var s = sum(v_indices2[i],fv);
         v_indices2[sm] = s[0];
         v_indices2[sm+1u] = v_indices2[sm+1u]+s[1];
+
+        out[sm] = s[0];
+        out[sm+1u] = v_indices2[sm+1u]+s[1];
     }
 
-    // for(i=sm+2u; i < bg ;i++) {
-    //     if( a1 < a2) {
-    //         v_indices2[i] = 0u;
-    //     }else{
-    //         v_indices[i] = 0u;
-    //     }
-    // }
-
-    
 }
-
 
 
 @compute

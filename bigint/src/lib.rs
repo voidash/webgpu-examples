@@ -1,5 +1,5 @@
 extern crate num;
-use num::bigint::{BigUint, ToBigUint};
+use num::bigint::{BigUint};
 
 use wgpu::util::DeviceExt;
 use wgpu::ComputePipelineDescriptor;
@@ -339,21 +339,16 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
     readback_buffer3.unmap();
 
     let mut final_vec: Vec<u32> = Vec::new();
-    // timestamp_buffer.unmap();
-    for (a1,a2)in result.iter().zip(result2.iter()) {
-        final_vec.push(a1 + a2);
-    }
+        // timestamp_buffer.unmap();
+    // for (a1,a2)in result.iter().zip(result2.iter()) {
+    //     final_vec.push(a1 + a2);
+    // }
 
-    for a in result3.iter() {
+    for &a in result3.iter() {
+        final_vec.push(a);
         println!("{}", a);
     }
 
 
-    // println!(
-    //     "Took: {:?}",
-    //     Duration::from_nanos(
-    //         ((timings[1] - timings[0]) as f64 * f64::from(timestamp_period)) as u64
-    //     )
-    // );
     return final_vec;
 }

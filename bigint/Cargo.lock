@@ -90,7 +90,10 @@ dependencies = [
  "env_logger",
  "num",
  "pollster",
+ "proc-macro2",
+ "quote",
  "rand_core",
+ "syn",
  "wgpu",
 ]
 

@@ -12,4 +12,7 @@ rand_core = "0.6.4"
 wgpu = { version = "0.15"}
 env_logger = "0.10.0"
 num = "0.4.1"
+syn = { version = "*", features = ["extra-traits"] }
+quote = "*"
+proc-macro2 = "*"
 

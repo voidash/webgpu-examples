@@ -25,3 +25,12 @@ fn bigint_multiply_test() {
     assert_eq!(val, vec![260846532,35487,0]);
 }
 
+#[test]
+fn bigint_subtration_test() {
+    use bigint_wgpu::subtract;
+    let lhs = "-12345678";
+    let rhs = "12345678";
+    let val = subtract(lhs, rhs);
+
+}
+

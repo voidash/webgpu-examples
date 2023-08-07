@@ -157,14 +157,3 @@ fn multiply_test() {
     v_indices[0] = a[0];
     v_indices[1] = a[1];
 }
-
-@compute
-@workgroup_size(1,1,1)
-fn sum_test() {
-    let a = multiply(v_indices[0], v_indices[1]);
-    v_indices[0] = a[0];
-    v_indices[1] = a[1];
-}
-
-
-

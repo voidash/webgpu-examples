@@ -4,6 +4,12 @@ use num::bigint::{BigUint};
 use wgpu::util::DeviceExt;
 use wgpu::ComputePipelineDescriptor;
 
+extern crate proc_macro;
+use proc_macro::TokenStream;
+
+#[proc_macro]
+pub fn binOp() {}
+
 pub fn bigint_convert(source: &str) -> Vec<u32> {
     // let mut number = source.parse::<BigUint>().unwrap();
     // let mut temp_vector : Vec<u32>= Vec::new();
@@ -43,6 +49,13 @@ pub fn sum(lhs: &str, rhs: &str) -> Vec<u32> {
     // r1_len_vec.push(r1.len() as u32);
 
     // let value = l1_len_vec.into_iter().chain(l1.into_iter()).chain(r1_len_vec.into_iter()).chain(r1.into_iter()).collect::<Vec<u32>>();
+
+    return pollster::block_on(run(&l1,&r1, "bigint_sum"));
+}
+
+pub fn subtract(lhs: &str, rhs: &str) -> Vec<u32> {
+    let l1 =  bigint_convert(lhs);
+    let r1 = bigint_convert(rhs);
 
     return pollster::block_on(run(&l1,&r1, "bigint_sum"));
 }

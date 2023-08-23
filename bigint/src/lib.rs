@@ -8,7 +8,7 @@ extern crate proc_macro;
 use proc_macro::TokenStream;
 
 #[proc_macro]
-pub fn binOp() {}
+pub fn binOp
 
 pub fn bigint_convert(source: &str) -> Vec<u32> {
     // let mut number = source.parse::<BigUint>().unwrap();

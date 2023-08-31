@@ -7,9 +7,8 @@ use wgpu::ComputePipelineDescriptor;
 extern crate proc_macro;
 use proc_macro::TokenStream;
 
-#[proc_macro]
-pub fn binOp
 
+// convert to bigdivision 
 pub fn bigint_convert(source: &str) -> Vec<u32> {
     // let mut number = source.parse::<BigUint>().unwrap();
     // let mut temp_vector : Vec<u32>= Vec::new();
@@ -128,6 +127,7 @@ pub async fn run(source1: &Vec<u32>, source2: &Vec<u32>, entry_point: &str) -> V
             },
         }],
     });
+
     let bind_group_layout_2 = device.create_bind_group_layout(&wgpu::BindGroupLayoutDescriptor {
         label: None,
         entries: &[wgpu::BindGroupLayoutEntry {

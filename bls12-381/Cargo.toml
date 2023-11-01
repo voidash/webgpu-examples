@@ -9,6 +9,6 @@ edition = "2021"
 bytemuck = "1.13.1"
 pollster = "0.2"
 rand_core = "0.6.4"
-wgpu = { version = "0.15"}
+wgpu = { version = "0.16.1"}
 env_logger = "0.10.0"
 

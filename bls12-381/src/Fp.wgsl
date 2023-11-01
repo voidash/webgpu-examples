@@ -153,9 +153,9 @@ fn sum(a: u32, b: u32) -> array<u32,2> {
 
 // a + (b * c ) + carry 
 // returns new result and new carry over
-fn mac(a: u32, b: u32, c: u32, carry: u32) -> array<u32,2> {
+fn mac(a: u32, b: u32, c: u32, cm : u32) -> array<u32,2> {
     let bc_multiply = multiply(b, c);
-    let bc_total = sum(bc_multiply[0], carry);
+    let bc_total = sum(bc_multiply[0], cm);
 
 
     let a_bc_sum = sum(a, bc_total[0]);
@@ -221,13 +221,6 @@ fn Fp_add(lhs: Fp, rhs: Fp) -> Fp {
     return subtract_p(final_fp);
 }
 
-// returns a.zip(b).fold(0,|acc, (a_i,b_i| acc + a_i * b_i )
-fn Fp_sum_of_products() {
-    for (var j = 0u; j < 12u; j++) {
-        for (var i = j; i < 12u ; i++) {
-        }
-    }
-}
 
 fn Fp_neg(data: Fp) -> Fp {
     let r1_a = sbb(MODULUS[0], data.value[0], 0u);
@@ -1230,6 +1223,22 @@ fn fp_multiply_test() {
     v_indices[9] = added_value.value[9];
     v_indices[10] = added_value.value[10];
     v_indices[11] = added_value.value[11];
+}
+
+
+// this is fp2.wgsl
+
+struct Fp2 {
+  c0: Fp,
+  c1: Fp
+}
+
+fn Fp2_frobenius_map(fp2: Fp2) -> Fp2{
+   return Fp2_conjugate(fp2);
+}
+
+fn Fp2_conjugate(fp2: Fp2) -> Fp2 {
+    return Fp2(fp2.c0, Fp_neg(fp2.c1));
 }
 
 

@@ -1,6 +1,10 @@
+
+
 fn Fp_sum_of_products_fp2(a:array<Fp,2> , b: array<Fp,2>) -> Fp {
     var u: array<u32, 12> = array<u32, 12>(0u, 0u, 0u, 0u, 0u, 0u,0u, 0u, 0u, 0u, 0u, 0u);
     var t: array<u32, 13> = array<u32, 13>(u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7],u[8],u[9],u[10],u[11],0u);
+
+
 
     var t0 = mac(t[0], a[0].value[0], b[0].value[0], 0);
     t[0] = t0[0];

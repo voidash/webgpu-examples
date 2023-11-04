@@ -1,6 +1,6 @@
 value = """
 
-fn Fp_sum_of_products_fp2(a:array<Fp,2> , b: array<Fp,2>) -> Fp {
+fn Fp2_sum_of_products(a:array<Fp,2> , b: array<Fp,2>) -> Fp {
     var u: array<u32, 12> = array<u32, 12>(0u, 0u, 0u, 0u, 0u, 0u,0u, 0u, 0u, 0u, 0u, 0u);
     var t: array<u32, 13> = array<u32, 13>(u[0], u[1], u[2], u[3], u[4], u[5], u[6], u[7],u[8],u[9],u[10],u[11],0u);
 
@@ -46,7 +46,7 @@ bottom = """
 i = 0
 k = 0
 f_val = f"""
-    var t0 = mac(t[0], a[{i}].value[{k}], b[{i}].value[0], 0);
+    var t0 = mac(t[0], a[{i}].value[{k}], b[{i}].value[0], 0u);
     t[0] = t0[0];
     var t1 = mac(t[1], a[{i}].value[{k}], b[{i}].value[1], t0[1]);
     t[1] = t1[0];
@@ -70,7 +70,7 @@ f_val = f"""
     t[10] = t10[0];  
     var t11 = mac(t[11], a[{i}].value[{k}], b[{i}].value[11], t10[1]);
     t[11] = t11[0];  
-    var t12 = adc(t[12], 0, t11[1]);
+    var t12 = adc(t[12], 0u, t11[1]);
     t[12] = t12[0];  
 """
 
@@ -80,7 +80,7 @@ for k in range(0,12):
             print(f_val)
         else:
             print(f"""
-    t0 = mac(t[0], a[{i}].value[{k}], b[{i}].value[0], 0);
+    t0 = mac(t[0], a[{i}].value[{k}], b[{i}].value[0], 0u);
     t[0] = t0[0];
     t1 = mac(t[1], a[{i}].value[{k}], b[{i}].value[1], t0[1]);
     t[1] = t1[0];
@@ -104,7 +104,7 @@ for k in range(0,12):
     t[10] = t10[0];  
     t11 = mac(t[11], a[{i}].value[{k}], b[{i}].value[11], t10[1]);
     t[11] = t11[0];  
-    t12 = adc(t[12], 0, t11[1]);
+    t12 = adc(t[12], 0u, t11[1]);
     t[12] = t12[0];  
                   """)
 

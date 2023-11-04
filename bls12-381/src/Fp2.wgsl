@@ -82,3 +82,43 @@ fn Fp2_square(fp2: Fp2) -> Fp2 {
     Fp_mul(c,fp2.c1)
   );
 }
+
+fn Fp2_invert(fp2: Fp2) -> Fp2 {
+  let tmp = Fp_invert(Fp_add(square(fp2.c0),square(fp2.c1)));
+
+  return Fp2(
+    Fp_mul(fp2.c0, tmp),
+    Fp_mul(fp2.c1 * Fp_invert(tmp))
+);
+}
+
+fn Fp2_sqrt(fp2: Fp2) -> Fp2 {
+  // need to rework
+  let val = Fp2_pow_vartime(fp2,array<u32,12>(
+        0xffffeaaau,
+        0xee7fbfffu,
+        0xac54ffffu,
+        0x07aaffffu,
+        0x3dac3d89u,
+        0xd9cc34a8u,
+        0x3ce144afu,
+        0xd91dd2e1u,
+        0x90d2eb35u,
+        0x92c6e9edu,
+        0x8e5ff9a6u,
+        0x0680447au,
+  )); 
+
+  let alpha = Fp2_mul(Fp2_square(val), fp2);
+
+  let x0 = Fp2_mul(fp2,val);
+
+  return Fp2(
+    Fp_invert(x0.c1),
+    x0.c0
+  );
+} 
+
+fn Fp2_zero() -> Fp2 {
+  return Fp2(Fp_zero(), Fp_zero());
+} 

@@ -28,3 +28,14 @@
 | Fp multiply      | 6.1307 - 6.2088 | -3.9553 to -2.3814  | Improved     | 8 (8.00%) |
 | Fp subtract      | 6.0221 - 6.0413 | -3.0871 to -2.4717  | Improved     | 5 (5.00%) |
 
+### Pairings implementation
+
+
+
+
+
+
+
+
+
+

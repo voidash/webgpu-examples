@@ -7,8 +7,8 @@ struct Fp {
 }
 // BLS parameter x is -0xd201000000010000
 const BLS_X = array<u32,2>(
-  0x00010000u
-  0xd2010000u,
+  0x00010000u,
+  0xd2010000u
 );
 
 const BLS_X_IS_NEGATIVE = false;
@@ -116,9 +116,6 @@ fn Fp_one() -> Fp {
 
 fn Fp_zero() -> Fp {
   return Fp(array<u32,12>(0u,0u,0u,0u,0u,0u,0u,0u,0u,0u,0u,0u));
-}
-fn Fp_one() -> Fp {
-  return R;
 }
 
 // multiply operation
@@ -1327,9 +1324,6 @@ fn Fp2_sub(lhs: Fp2, rhs: Fp2) -> Fp2 {
   return Fp2(Fp_sub(lhs.c0, rhs.c0),Fp_sub(lhs.c1, rhs.c1));
 } 
 
-fn Fp2_neg(fp2 : Fp2) -> Fp2 {
-  return Fp2(Fp_neg(fp2.c0), Fp_neg(fp2.c1));
-} 
 
 fn Fp2_mul(lhs: Fp2, rhs: Fp2 ) -> Fp2 {
 // F_{p^2} x F_{p^2} multiplication implemented with operand scanning (schoolbook)
@@ -6879,7 +6873,7 @@ fn Fp6_mul_interleaved(a: Fp6, b: Fp6) -> Fp6 {
   return Fp6(
     Fp2(
       Fp6_sum_of_products(
-        array<Fp,6>(a.c0.c0, Fp_neg(a.c0.c1, a.c1.c0, Fp_neg(a.c1.c1, a.c2.c0, Fp_neg(a.c2.c1),
+        array<Fp,6>(a.c0.c0, Fp_neg(a.c0.c1), a.c1.c0, Fp_neg(a.c1.c1), a.c2.c0, Fp_neg(a.c2.c1)),
         array<Fp,6>(b.c0.c0, b.c0.c1, b20_m_b21, b20_p_b21, b10_m_b11, b10_p_b11),
       ),
       Fp6_sum_of_products(
@@ -6889,10 +6883,12 @@ fn Fp6_mul_interleaved(a: Fp6, b: Fp6) -> Fp6 {
     ),
 
     Fp2(
+
       Fp6_sum_of_products(
-        array<Fp,6>(a.c0.c0, Fp_neg(a.c0.c1, a.c1.c0, Fp_neg(a.c1.c1, a.c2.c0, Fp_neg(a.c2.c1),
+        array<Fp,6>(a.c0.c0, Fp_neg(a.c0.c1), a.c1.c0, Fp_neg(a.c1.c1), a.c2.c0, Fp_neg(a.c2.c1)),
         array<Fp,6>(b.c1.c0, b.c1.c1, b.c0.c0, b.c0.c1, b20_m_b21, b20_p_b21),
       ),
+
       Fp6_sum_of_products(
         array<Fp,6>(a.c0.c0, a.c0.c1, a.c1.c0, a.c1.c1, a.c2.c0, a.c2.c1),
         array<Fp,6>(b.c1.c0, b.c1.c1, b.c0.c1, b.c0.c0, b20_p_b21, b20_m_b21),
@@ -6900,10 +6896,12 @@ fn Fp6_mul_interleaved(a: Fp6, b: Fp6) -> Fp6 {
     ),
 
     Fp2(
+
       Fp6_sum_of_products(
-        array<Fp,6>(a.c0.c0, Fp_neg(a.c0.c1, a.c1.c0, Fp_neg(a.c1.c1, a.c2.c0, Fp_neg(a.c2.c1),
+        array<Fp,6>(a.c0.c0, Fp_neg(a.c0.c1), a.c1.c0, Fp_neg(a.c1.c1), a.c2.c0, Fp_neg(a.c2.c1)),
         array<Fp,6>(b.c2.c0, b.c2.c1, b.c1.c0, b.c1.c1, b.c0.c0, b.c0.c1),
       ),
+
       Fp6_sum_of_products(
         array<Fp,6>(a.c0.c0, a.c0.c1, a.c1.c0, a.c1.c1, a.c2.c0, a.c2.c1),
         array<Fp,6>(b.c2.c1, b.c2.c0, b.c1.c1, b.c1.c0, b.c0.c1, b.c0.c0),
@@ -6958,14 +6956,14 @@ fn Fp6_square(fp6: Fp6) -> Fp6 {
   let s1 = Fp2_add(ab, ab);
   let s2 = Fp2_square(Fp2_add(fp6.c2, Fp2_sub(fp6.c0,fp6.c1)));
   let bc = Fp2_mul(fp6.c1, fp6.c2);
-  let s3 = Fp2_sum(bc, bc);
+  let s3 = Fp2_add(bc, bc);
   let s4 = Fp2_square(fp6.c2);
 
-  return Fp6 {
+  return Fp6 (
     Fp2_add(Fp2_mul_by_nonresidue(s3),s0),
     Fp2_add(Fp2_mul_by_nonresidue(s4),s1),
     Fp2_sub(Fp2_sub(Fp2_add(Fp2_add(s2,s3),s1),s0),s4)
-  }
+  );
 }
 
 fn Fp6_neg(fp6: Fp6) -> Fp6 {
@@ -7000,14 +6998,14 @@ fn Fp12_one() -> Fp12 {
   return Fp12(Fp6_one(), Fp6_zero());
 } 
 
-fn mul_by_014(c0: Fp2, c1: Fp2, c4: Fp2) -> Fp12 {
-}
+//fn mul_by_014(c0: Fp2, c1: Fp2, c4: Fp2) -> Fp12 {
+//}
 
 fn Fp12_frobenius_map(fp12: Fp12) -> Fp12 {
   var c0 = Fp6_frobenius_map(fp12.c0);
   var c1 = Fp6_frobenius_map(fp12.c1);
   
-  var c1 = Fp6_mul(c1, Fp6(Fp2(Fp(array<u32,12>(
+  c1 = Fp6_mul(c1, Fp6(Fp2(Fp(array<u32,12>(
                     0xb319d465u,
                     0x07089552u,
                     0xb50a8313u,
@@ -7097,18 +7095,18 @@ fn Fp_conditional_select(a: Fp, b: Fp, choice: u32) -> Fp{
 
 fn Fp_is_zero(fp: Fp) -> u32 {
   return 
-        ( fp[0] == 0u ) & 
-        ( fp[1] == 0u ) & 
-        ( fp[2] == 0u ) & 
-        ( fp[3] == 0u ) & 
-        ( fp[4] == 0u ) & 
-        ( fp[5] == 0u ) & 
-        ( fp[6] == 0u ) & 
-        ( fp[7] == 0u ) & 
-        ( fp[8] == 0u ) & 
-        ( fp[9] == 0u ) & 
-        ( fp[10] == 0u ) & 
-        ( fp[11] == 0u );
+        u32(( fp.value[0] == 0u ) & 
+        ( fp.value[1] == 0u ) & 
+        ( fp.value[2] == 0u ) & 
+        ( fp.value[3] == 0u ) & 
+        ( fp.value[4] == 0u ) & 
+        ( fp.value[5] == 0u ) & 
+        ( fp.value[6] == 0u ) & 
+        ( fp.value[7] == 0u ) & 
+        ( fp.value[8] == 0u ) & 
+        ( fp.value[9] == 0u ) & 
+        ( fp.value[10] == 0u ) & 
+        ( fp.value[11] == 0u ));
 }
 
 struct G1Affine {
@@ -7154,43 +7152,48 @@ fn Fp_mul_by_3b(a: Fp) -> Fp {
   return Fp_add(Fp_add(b,b),b);
 }
 
-fn G1Projective_add(lhs: G1Projective, rhs: G1Affine) -> G1Projective {
+fn G1Projective_add(lhs: G1Projective, rhs: G1Projective) -> G1Projective {
   var t0 = Fp_mul(lhs.x, rhs.x);
   var t1 = Fp_mul(lhs.y, rhs.y);
-  var t3 = Fp_add(lhs.x, rhs.y);
-  var t4 = Fp_add(lhs.x, rhs.y);
+  var t2 = Fp_mul(lhs.z, rhs.z);
+  var t3 = Fp_add(lhs.x, lhs.y);
+  var t4 = Fp_add(rhs.x, rhs.y);
 
-  t3 = Fp_mul(t3,t4);
-  t4 = Fp_add(t0,t1);
-  t3 = Fp_sub(t3,t4);
-  t4 = Fp_add(t0,t1);
-  t3 = Fp_sub(t3,t4);
-  t4 = Fp_mul(rhs.y,lhs.z);
-  t4 = Fp_add(t4, lhs.y);
-  var y3 = Fp_mul(rhs.x, lhs.z);
-  y3 = Fp_add(y3, lhs.x);
-  x3 = Fp_add(t0,t0);
-  t0 = Fp_add(x3,t0);
+  t3 = Fp_mul(t3 , t4);
+  t4 = Fp_add(t0 , t1);
+  t3 = Fp_sub(t3 , t4);
+  t4 = Fp_add(lhs.y , lhs.z);
+  var x3 = Fp_add(rhs.y , rhs.z);
+  t4 = Fp_mul(t4 , x3);
+  x3 = Fp_add(t1 , t2);
+  t4 = Fp_sub(t4 , x3);
+  x3 = Fp_add(lhs.x , lhs.z);
+  var y3 = Fp_add(rhs.x , rhs.z);
+  x3 = Fp_mul(x3 , y3);
+  y3 = Fp_add(t0 , t2);
+  y3 = Fp_sub(x3 ,y3);
+  x3 = Fp_add(t0 , t0);
+  t0 = Fp_add(x3 , t0);
   t2 = Fp_mul_by_3b(t2);
-  var z3 = Fp_add(t1,t2);
-  var t1 = Fp_sub(t1,t2);
+  var z3 = Fp_add(t1 , t2);
+  t1 = Fp_sub(t1 , t2);
   y3 = Fp_mul_by_3b(y3);
-  x3 = Fp_mul(t4,y3);
-  t2 = Fp_mul(t3,t1);
-  x3 = Fp_sub(t2,x3);
-  y3 = Fp_mul(y3,t0);
-  t1 = Fp_mul(t1,z3);
-  y3 = Fp_add(t1,y3);
-  t0 = Fp_mul(t0,t3);
-  z3 = Fp_mul(z3,t4);
-  z3 = Fp_add(z3,t0);
-
+  x3 = Fp_mul(t4 , y3);
+  t2 = Fp_mul(t3 , t1);
+  x3 = Fp_sub(t2 , x3);
+  y3 = Fp_mul(y3 , t0);
+  t1 = Fp_mul(t1 , z3);
+  y3 = Fp_add(t1 , y3);
+  t0 = Fp_mul(t0 , t3);
+  z3 = Fp_mul(z3 , t4);
+  z3 = Fp_add(z3 , t0);
   return G1Projective(x3,y3,z3);
 }
 
-fn G1Projective_sub(lhs: G1Projective, rhs: G1Affine) -> G1Projective {
+fn G1Projective_sub(lhs: G1Projective, rhs: G1Projective) -> G1Projective {
   return G1Projective_add(lhs, G1Projective_neg(rhs));
 }
+
 
 
 fn G1Projective_add_mixed(lhs: G1Projective, rhs: G1Affine) -> G1Projective {
@@ -7208,11 +7211,11 @@ fn G1Projective_add_mixed(lhs: G1Projective, rhs: G1Affine) -> G1Projective {
   t4 = Fp_add(t4, lhs.y);
   var y3 = Fp_mul(rhs.x, lhs.z);
   y3 = Fp_add(y3, lhs.x);
-  x3 = Fp_add(t0,t0);
+  var x3 = Fp_add(t0,t0);
   t0 = Fp_add(x3,t0);
-  t2 = Fp_mul_by_3b(t2);
+  var t2 = Fp_mul_by_3b(lhs.z);
   var z3 = Fp_add(t1,t2);
-  var t1 = Fp_sub(t1,t2);
+  t1 = Fp_sub(t1,t2);
   y3 = Fp_mul_by_3b(y3);
   x3 = Fp_mul(t4,y3);
   t2 = Fp_mul(t3,t1);
@@ -7226,18 +7229,23 @@ fn G1Projective_add_mixed(lhs: G1Projective, rhs: G1Affine) -> G1Projective {
 
   let tmp =  G1Projective(x3,y3,z3);
 
-  return G1Projective_conditional_select(tmp, lhs, G1Projective_is_identity(rhs));
+  return G1Projective_conditional_select(tmp, lhs, G1_is_identity(rhs));
 
 }
 
-fn G1Projective_multiply(lhs: G1Projective, rhs: G1Projective) -> G1Projective {
-  let acc = G1Projective_identity();
+//todo
+//fn G1Projective_multiply(lhs: G1Projective, rhs: G1Projective) -> G1Projective {
+ // let acc = G1Projective_identity();
 
   //todo
+//}
+
+fn G1_sub(lhs: G1Affine, rhs: G1Projective) -> G1Projective {
+  return G1Projective_add_mixed(G1Projective_neg(rhs),lhs);
 }
 
-fn G1_sub(lhs: G1Affine, rhs: G1Affine) -> G1Affine {
-  return G1Projective_add(lhs, G1_neg(rhs));
+fn G1_sub_first_Projective(lhs: G1Projective, rhs: G1Affine) -> G1Projective {
+  return G1Projective_add_mixed(lhs, G1_neg(rhs));
 }
 
 fn G1_identity() -> G1Affine {
@@ -7271,8 +7279,8 @@ fn G1_generator() -> G1Affine {
                     0x51ac5829u,
                     0xad0059c0u,
                     0x0e1c8c3fu,
-                    0x5008a26a,   
-                    0x0bbc3efc,
+                    0x5008a26au,   
+                    0x0bbc3efcu,
 )),
   0u
   );
@@ -7290,7 +7298,7 @@ fn G1Projective_is_identity(g1: G1Projective) -> u32 {
 fn G1_to_G1Projective(g1: G1Affine) -> G1Projective{
   return G1Projective(
       g1.x,
-      g2.y,
+      g1.y,
       Fp_conditional_select(Fp_one(), Fp_zero() ,0u)
   );
 }
@@ -7302,29 +7310,29 @@ fn u64_mod2(u64: array<u32,2>) -> u32 {
 
 fn u64_shift_left_by_one(u64: array<u32,2>) -> array<u32,2> {
     let zero_index_shift_value = u64[0] & 0x80000000u;
-    return array<u32,2>(u64[0] << 1, (u64[1] << 1) | zero_index_shift_value);
+    return array<u32,2>(u64[0] << 1u, (u64[1] << 1u) | zero_index_shift_value);
 }
 
 fn u64_shift_right_by_one(u64: array<u32,2>) -> array<u32,2> {
-    let first_index_shift_value = u64[1] & 1;
-      return array<u32,2>((u64[0] >> 1) | (first_index_shift_value << 31),u64[1] >> 1):
+    let first_index_shift_value = u64[1] & 1u;
+      return array<u32,2>((u64[0] >> 1u) | (first_index_shift_value << 31u),u64[1] >> 1u);
 }
 
 fn G1Projective_double(g1: G1Projective) -> G1Projective {
-  var t0 = Fp_square(g1.y);
+  var t0 = square(g1.y);
   var z3 = Fp_add(t0,t0) ;
   z3 =  Fp_add(z3,z3);
   z3 = Fp_add(z3,z3);
   var t1 = Fp_mul(g1.y,g1.z);
-  var t2 = Fp_square(g1.z);
+  var t2 = square(g1.z);
   t2 = Fp_mul_by_3b(t2);
   var x3 = Fp_mul(t2,z3);
-  y3 = Fp_add(t0,t2);
+  var y3 = Fp_add(t0,t2);
   z3 = Fp_mul(t1,z3);
   t1 = Fp_add(t2,t2);
   t2 = Fp_add(t1,t2);
   t0 = Fp_sub(t0,t2);
-  var y3 = Fp_mul(t0,y3);
+  y3 = Fp_mul(t0,y3);
   y3 = Fp_add(x3,y3);
   t1 = Fp_mul(g1.x,g1.y);
   x3 = Fp_mul(t0,t1);
@@ -7333,7 +7341,7 @@ fn G1Projective_double(g1: G1Projective) -> G1Projective {
   let tmp = G1Projective(x3,y3,z3);
 
 
-  return G1Projective_conditional_select(tmp, G1Projective_identity(),G1Projective_is_identity());
+  return G1Projective_conditional_select(tmp, G1Projective_identity(),G1Projective_is_identity(g1));
 }
 
 fn G1Projective_neg(g1: G1Projective) -> G1Projective {
@@ -7350,7 +7358,7 @@ fn G1Projective_mul_by_x(g1: G1Projective) -> G1Projective {
   var x = u64_shift_right_by_one(BLS_X);
   var tmp = g1;
   
-  while (x[0]!=0 & x[1]!=0){
+  while (x[0]!=0u & x[1]!=0u){
       tmp = G1Projective_double(tmp);
       
       if u64_mod2(x) == 1u {
@@ -7362,7 +7370,7 @@ fn G1Projective_mul_by_x(g1: G1Projective) -> G1Projective {
   if BLS_X_IS_NEGATIVE { 
       xself = G1Projective_neg(xself);
    }
-  xself
+  return xself;
 }
 
 fn G1Projective_clear_cofactor(g1: G1Projective) -> G1Projective {
@@ -7371,13 +7379,13 @@ fn G1Projective_clear_cofactor(g1: G1Projective) -> G1Projective {
 
 fn G1Projective_is_on_cruve(g1: G1Projective) -> u32 {
   // TODO
-  return 1;
+  return 1u;
 }
 
 fn G1_is_torsion_free(g1: G1Affine) -> u32 {
  let minus_x_squared_times_p = G1_to_G1Projective(g1);
   // TODO
-  return 1;
+  return 1u;
 }
 
 

@@ -122,3 +122,133 @@ fn Fp2_sqrt(fp2: Fp2) -> Fp2 {
 fn Fp2_zero() -> Fp2 {
   return Fp2(Fp_zero(), Fp_zero());
 } 
+
+@compute
+@workgroup_size(1,1,1)
+fn Fp2_neg_test() {
+
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+
+    let fp2 = Fp(array<u32,12>(v_indices[12], v_indices[13], v_indices[14], v_indices[15], v_indices[16], v_indices[17], v_indices[18], v_indices[19], v_indices[20], v_indices[21], v_indices[22], v_indices[23]));
+
+
+  let a = Fp2(fp1,fp2);
+
+
+   let added_value = Fp2_neg(a);
+    v_indices[0] = added_value.c0.value[0];
+    v_indices[1] = added_value.c0.value[1];
+    v_indices[2] = added_value.c0.value[2];
+    v_indices[3] = added_value.c0.value[3];
+    v_indices[4] = added_value.c0.value[4];
+    v_indices[5] = added_value.c0.value[5];
+    v_indices[6] = added_value.c0.value[6];
+    v_indices[7] = added_value.c0.value[7];
+    v_indices[8] = added_value.c0.value[8];
+    v_indices[9] = added_value.c0.value[9];
+    v_indices[10] = added_value.c0.value[10];
+    v_indices[11] = added_value.c0.value[11];
+
+    v_indices[12] = added_value.c1.value[0];
+    v_indices[13] = added_value.c1.value[1];
+    v_indices[14] = added_value.c1.value[2];
+    v_indices[15] = added_value.c1.value[3];
+    v_indices[16] = added_value.c1.value[4];
+    v_indices[17] = added_value.c1.value[5];
+    v_indices[18] = added_value.c1.value[6];
+    v_indices[19] = added_value.c1.value[7];
+    v_indices[20] = added_value.c1.value[8];
+    v_indices[21] = added_value.c1.value[9];
+    v_indices[22] = added_value.c1.value[10];
+    v_indices[23] = added_value.c1.value[11];
+
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn Fp2_add_test() {
+
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+
+    let fp2 = Fp(array<u32,12>(v_indices[12], v_indices[13], v_indices[14], v_indices[15], v_indices[16], v_indices[17], v_indices[18], v_indices[19], v_indices[20], v_indices[21], v_indices[22], v_indices[23]));
+
+    let fp3 = Fp(array<u32,12>(v_indices[24], v_indices[25], v_indices[26], v_indices[27], v_indices[28], v_indices[29], v_indices[30], v_indices[31], v_indices[32], v_indices[33], v_indices[34], v_indices[35]));
+    let fp4 = Fp(array<u32,12>(v_indices[36], v_indices[37], v_indices[38], v_indices[39], v_indices[40], v_indices[41], v_indices[42], v_indices[43], v_indices[44], v_indices[45], v_indices[46], v_indices[47]));
+
+  let a = Fp2(fp1,fp2);
+  let b = Fp2(fp3,fp4);
+
+
+   let added_value = Fp2_add(a, b);
+    v_indices[0] = added_value.c0.value[0];
+    v_indices[1] = added_value.c0.value[1];
+    v_indices[2] = added_value.c0.value[2];
+    v_indices[3] = added_value.c0.value[3];
+    v_indices[4] = added_value.c0.value[4];
+    v_indices[5] = added_value.c0.value[5];
+    v_indices[6] = added_value.c0.value[6];
+    v_indices[7] = added_value.c0.value[7];
+    v_indices[8] = added_value.c0.value[8];
+    v_indices[9] = added_value.c0.value[9];
+    v_indices[10] = added_value.c0.value[10];
+    v_indices[11] = added_value.c0.value[11];
+
+    v_indices[12] = added_value.c1.value[0];
+    v_indices[13] = added_value.c1.value[1];
+    v_indices[14] = added_value.c1.value[2];
+    v_indices[15] = added_value.c1.value[3];
+    v_indices[16] = added_value.c1.value[4];
+    v_indices[17] = added_value.c1.value[5];
+    v_indices[18] = added_value.c1.value[6];
+    v_indices[19] = added_value.c1.value[7];
+    v_indices[20] = added_value.c1.value[8];
+    v_indices[21] = added_value.c1.value[9];
+    v_indices[22] = added_value.c1.value[10];
+    v_indices[23] = added_value.c1.value[11];
+
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn Fp2_sub_test() {
+
+    let fp1 = Fp(array<u32,12>(v_indices[0], v_indices[1], v_indices[2], v_indices[3], v_indices[4], v_indices[5], v_indices[6], v_indices[7], v_indices[8], v_indices[9], v_indices[10], v_indices[11]));
+
+    let fp2 = Fp(array<u32,12>(v_indices[12], v_indices[13], v_indices[14], v_indices[15], v_indices[16], v_indices[17], v_indices[18], v_indices[19], v_indices[20], v_indices[21], v_indices[22], v_indices[23]));
+
+    let fp3 = Fp(array<u32,12>(v_indices[24], v_indices[25], v_indices[26], v_indices[27], v_indices[28], v_indices[29], v_indices[30], v_indices[31], v_indices[32], v_indices[33], v_indices[34], v_indices[35]));
+    let fp4 = Fp(array<u32,12>(v_indices[36], v_indices[37], v_indices[38], v_indices[39], v_indices[40], v_indices[41], v_indices[42], v_indices[43], v_indices[44], v_indices[45], v_indices[46], v_indices[47]));
+
+  let a = Fp2(fp1,fp2);
+  let b = Fp2(fp3,fp4);
+
+
+   let sub_value = Fp2_sub(a, b);
+    v_indices[0] = sub_value.c0.value[0];
+    v_indices[1] = sub_value.c0.value[1];
+    v_indices[2] = sub_value.c0.value[2];
+    v_indices[3] = sub_value.c0.value[3];
+    v_indices[4] = sub_value.c0.value[4];
+    v_indices[5] = sub_value.c0.value[5];
+    v_indices[6] = sub_value.c0.value[6];
+    v_indices[7] = sub_value.c0.value[7];
+    v_indices[8] = sub_value.c0.value[8];
+    v_indices[9] = sub_value.c0.value[9];
+    v_indices[10] = sub_value.c0.value[10];
+    v_indices[11] = sub_value.c0.value[11];
+
+    v_indices[12] = sub_value.c1.value[0];
+    v_indices[13] = sub_value.c1.value[1];
+    v_indices[14] = sub_value.c1.value[2];
+    v_indices[15] = sub_value.c1.value[3];
+    v_indices[16] = sub_value.c1.value[4];
+    v_indices[17] = sub_value.c1.value[5];
+    v_indices[18] = sub_value.c1.value[6];
+    v_indices[19] = sub_value.c1.value[7];
+    v_indices[20] = sub_value.c1.value[8];
+    v_indices[21] = sub_value.c1.value[9];
+    v_indices[22] = sub_value.c1.value[10];
+    v_indices[23] = sub_value.c1.value[11];
+
+}
+

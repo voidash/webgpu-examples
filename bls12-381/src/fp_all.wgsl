@@ -6952,6 +6952,9 @@ fn Fp6_add_test() {
 
 
 }
+
+
+
 //fp6
 
 struct Fp6 {
@@ -7606,7 +7609,179 @@ fn G1_is_torsion_free(g1: G1Affine) -> u32 {
   return 1u;
 }
 
+// need some form of u8 representation from u32
 
+fn G1Projective_multiply(lhs: G1Projective, rhs: array<u32,8> ) {
+ let acc = G1Projective_identity();
+}
 
+// G2 Affine
+struct G2Affine {
+  x: Fp2, 
+  y: Fp2,
+  infinity: u32
+}
 
+struct G2Projective {
+  x: Fp2,
+  y: Fp2,
+  z: Fp2
+}
 
+fn Fp2_conditional_select(a: Fp2, b: Fp2 , choice: u32) -> Fp2 {
+  return Fp2(
+      Fp_conditional_select(a.c0, b.c0, choice),
+      Fp_conditional_select(a.c1,b.c1,choice)
+  );
+}
+
+fn Fp2_is_zero(p: Fp2) -> u32{
+  return u32(Fp_is_zero(p.c0) & Fp_is_zero(p.c1));
+}
+
+fn G2Affine_conditional_select(a: G2Affine, b: G2Affine, choice: u32) -> G2Affine {
+  return G2Affine(
+    Fp2_conditional_select(a.x, b.x,choice),
+    Fp2_conditional_select(a.y, b.y,choice),
+    u32_conditional_select(a.infinity, b.infinity,choice),
+  );
+}
+
+fn G2Affine_from_G2Projective(p: G2Projective) -> G2Affine {
+  let zinv = Fp2_invert(p.z);
+  
+  let x = Fp2_mul(p.x , zinv);
+  let y = Fp2_mul(p.y, zinv);
+
+  let tmp = G2Affine(x,y,0u);
+  
+  return G2Affine_conditional_select(tmp, G2Affine_identity(), Fp2_is_zero(zinv));
+}
+
+fn G2Affine_identity() -> G2Affine {
+    return G2Affine(Fp2_zero(), Fp2_one(), 1u);
+}
+
+const B = Fp2(
+      Fp(array<u32,12>(
+        0x000cfff3u,
+        0xaa270000u,
+        0xfc34000au,
+        0x53cc0032u,
+        0x6b0a807fu,
+        0x478fe97au,
+        0xe6ba24d7u,
+        0xb1d37ebeu,
+        0xbf78ab2fu,
+        0x8ec9733bu,
+        0x3d83de7eu,
+        0x09d64551u,
+      )),
+      Fp(array<u32,12>(
+        0x000cfff3u,
+        0xaa270000u,
+        0xfc34000au,
+        0x53cc0032u,
+        0x6b0a807fu,
+        0x478fe97au,
+        0xe6ba24d7u,
+        0xb1d37ebeu,
+        0xbf78ab2fu,
+        0x8ec9733bu,
+        0x3d83de7eu,
+        0x09d64551u,
+      ))
+  );
+
+//const B3 = Fp2_add(B,Fp2_add(B,B));
+fn G2Affine_generator() -> G2Affine {
+  return G2Affine(
+    Fp2(Fp(array<u32,12>(
+        0x02940a10u,
+        0xf5f28fa2u,
+        0x87b4961au,
+        0xb3f5fb26u,
+        0x3e2ae580u,
+        0xa1a893b5u,
+        0x1a3caee9u,
+        0x9894999du,
+        0x1863366bu,
+        0x6f67b763u,
+        0x4350bcd7u,
+        0x05819192u,
+    )),
+    Fp(array<u32,12>(
+        0x9e23f606u,
+        0xa5a9c075u,
+        0xbccd60c3u,
+        0xaaa0c59du,
+        0xe2867806u,
+        0x3bb17e18u,
+        0x8541b367u,
+        0x1b1ab6ccu,
+        0xf2158547u,
+        0xc2b6ed0eu,
+        0x7360edf3u,
+        0x11922a09u,
+    ))),
+    Fp2(Fp(array<u32,12>(
+        0x60494c4au,
+        0x4c730af8u,
+        0x5e369c5au,
+        0x597cfa1fu,
+        0xaa0a635au,
+        0xe7e6856cu,
+        0x6e0d495fu,
+        0xbbefb5e9u,
+        0xf0ef25a2u,
+        0x07d3a975u,
+        0x7e80dae5u,
+        0x0083fd8eu,
+    )),
+    Fp(array<u32,12>(
+        0xdf64b05du,
+        0xadc0fc92u,
+        0x2b1461dcu,
+        0x18aa270au,
+        0x3be4eba0u,
+        0x86adac6au,
+        0xc93da33au,
+        0x79495c4eu,
+        0xa43ccaedu,
+        0xe7175850u,
+        0x63de1bf2u,
+        0x0b2bc2a1u)
+    )),
+  0u
+);
+}
+
+fn G2Affine_is_identity(p: G2Affine) -> u8 {
+   return p.infinity;
+}
+
+fn G2Projective_psi(self: G2Projective) -> G2Projective {
+    let psi_coeff_x = Fp2(
+      Fp_zero(),
+      Fp(array<u32,12>(
+          0x867545c3u,
+          0x890dc9e4u,
+          0x3285a5d5u,
+          0x2af32253u,
+          0x309b7e2cu,
+          0x50880866u,
+          0x7e881024u,
+          0xa20d1b8cu,
+          0xe2db9068u,
+          0x14e4f04fu,
+          0x1564853au,
+          0x14e56d3fu,
+      ))
+    );
+
+    let psi_coeff_y = Fp
+}
+
+fn is_torsion_free(&self){
+
+}

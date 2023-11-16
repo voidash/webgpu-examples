@@ -7778,8 +7778,9 @@ fn G2Projective_psi(self: G2Projective) -> G2Projective {
           0x14e56d3fu,
       ))
     );
-
-    let psi_coeff_y = Fp
+    let psi_coeff_y = Fp2 {
+      c0:  
+    }
 }
 
 fn is_torsion_free(&self){

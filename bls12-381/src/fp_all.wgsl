@@ -7756,11 +7756,12 @@ fn G2Affine_generator() -> G2Affine {
 );
 }
 
-fn G2Affine_is_identity(p: G2Affine) -> u8 {
+fn G2Affine_is_identity(p: G2Affine) -> u32 {
    return p.infinity;
 }
 
-fn G2Projective_psi(self: G2Projective) -> G2Projective {
+fn G2Projective_psi(g2: G2Projective) -> G2Projective {
+
     let psi_coeff_x = Fp2(
       Fp_zero(),
       Fp(array<u32,12>(
@@ -7778,11 +7779,66 @@ fn G2Projective_psi(self: G2Projective) -> G2Projective {
           0x14e56d3fu,
       ))
     );
-    let psi_coeff_y = Fp2 {
-      c0:  
-    }
+    let psi_coeff_y = Fp2(Fp(
+      array<u32,12>(
+          0xa55c9ad1u,
+          0x3e2f585du,
+          0x86c18183u,
+          0x4294213du,
+          0x8b623732u,
+          0x382844c8u,
+          0x19103e18u,
+          0x92ad2afdu,
+          0xac7cf0b9u,
+          0x1d794e4fu,
+          0x7d825ec8u,
+          0x0bd592fcu)),
+      Fp(array<u32,12>(
+          0x5aa30fdau,
+          0x7bcfa7a2u,
+          0x2a927e7cu,
+          0xdc17dec1u,
+          0x6b4ebef1u,
+          0x2f088dd8u,
+          0xda74d4a7u,
+          0xd1ca2087u,
+          0x96cebc1du,
+          0x2da25966u,
+          0xbbfd87d2u,
+          0x0e2b7eedu)
+          ),
+          );
+    return G2Projective(       
+      Fp2_frobenius_map(g2.x),
+      Fp2_frobenius_map(g2.y),
+      Fp2_frobenius_map(g2.z),
+    );
 }
 
-fn is_torsion_free(&self){
+fn G2Projective_psi2(g2: G2Projective) -> G2Projective {
 
+let psi2_coeff_x = Fp2(
+  Fp(array<u32,12>(
+        0x8671f071u,
+        0xcd03c9e4u,
+        0x1fcda5d2u,
+        0x5dab2246u,
+        0xd3851b95u,
+        0x587042afu,
+        0x01bacb9eu,
+        0x8eb60ebeu,
+        0x83d050d2u,
+        0x03f97d6eu,
+        0x54638741u,
+        0x18f02065u)),
+  Fp_zero());
+
+  return G2Projective(
+    Fp2_mul(g2.x,psi2_coeff_x),
+    Fp2_neg(g2.y),
+    Fp2_zero()
+  );
+}
+fn is_torsion_free(){
+  
 }

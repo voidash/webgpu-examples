@@ -12,7 +12,6 @@ const BLS_X = array<u32,2>(
 );
 
 const BLS_X_IS_NEGATIVE = false;
-
 // p = 4002409555221667393417789825735904156556882819939007885332058136124031650490837864442687629129015664037894272559787
 // little endian
 // for i in range(381,0,-16):
@@ -7516,7 +7515,7 @@ fn G1Projective_is_identity(g1: G1Projective) -> u32 {
 }
 
 
-fn G1_to_G1Projective(g1: G1Affine) -> G1Projective{
+fn G1Affine_to_G1Projective(g1: G1Affine) -> G1Projective{
   return G1Projective(
       g1.x,
       g1.y,
@@ -7604,7 +7603,7 @@ fn G1Projective_is_on_cruve(g1: G1Projective) -> u32 {
 }
 
 fn G1_is_torsion_free(g1: G1Affine) -> u32 {
- let minus_x_squared_times_p = G1_to_G1Projective(g1);
+ let minus_x_squared_times_p = G1Affine_to_G1Projective(g1);
   // TODO
   return 1u;
 }
@@ -7663,7 +7662,8 @@ fn G2Affine_identity() -> G2Affine {
 }
 
 const B = Fp2(
-      Fp(array<u32,12>(
+  Fp(
+    array<u32,12>(
         0x000cfff3u,
         0xaa270000u,
         0xfc34000au,
@@ -7675,9 +7675,10 @@ const B = Fp2(
         0xbf78ab2fu,
         0x8ec9733bu,
         0x3d83de7eu,
-        0x09d64551u,
-      )),
-      Fp(array<u32,12>(
+        0x09d64551u,) 
+  ),
+  Fp(
+    array<u32,12>(
         0x000cfff3u,
         0xaa270000u,
         0xfc34000au,
@@ -7689,9 +7690,9 @@ const B = Fp2(
         0xbf78ab2fu,
         0x8ec9733bu,
         0x3d83de7eu,
-        0x09d64551u,
-      ))
-  );
+        0x09d64551u,)
+  ),
+);
 
 //const B3 = Fp2_add(B,Fp2_add(B,B));
 fn G2Affine_generator() -> G2Affine {
@@ -7839,6 +7840,254 @@ let psi2_coeff_x = Fp2(
     Fp2_zero()
   );
 }
-fn is_torsion_free(){
+
+fn Fp_ct_eq(lhs: Fp, rhs: Fp) -> u32 {
+    return 
+        u32(( lhs.value[0] == rhs.value[0] ) & 
+        ( lhs.value[1] ==  rhs.value[1] ) & 
+        ( lhs.value[2] ==  rhs.value[2] ) & 
+        ( lhs.value[3] ==  rhs.value[3] ) & 
+        ( lhs.value[4] ==  rhs.value[4] ) & 
+        ( lhs.value[5] ==  rhs.value[5] ) & 
+        ( lhs.value[6] ==  rhs.value[6] ) & 
+        ( lhs.value[7] ==  rhs.value[7] ) & 
+        ( lhs.value[8] ==  rhs.value[8] ) & 
+        ( lhs.value[9] ==  rhs.value[9] ) & 
+        ( lhs.value[10] == rhs.value[10] ) & 
+        ( lhs.value[11] ==  rhs.value[11] ));
+}
+
+fn Fp2_ct_eq(lhs: Fp2, rhs: Fp2) -> u32 {
+  return u32(Fp_ct_eq(lhs.c0, rhs.c0) & Fp_ct_eq(lhs.c1, rhs.c1));
+}
+
+fn Fp6_ct_eq(lhs: Fp6, rhs: Fp6) -> u32 {
+  return u32(Fp2_ct_eq(lhs.c0, rhs.c0) & Fp2_ct_eq(lhs.c1, rhs.c1) & Fp2_ct_eq(lhs.c2, rhs.c2) );
+}
+
+fn Fp12_ct_eq(lhs: Fp12, rhs: Fp12) -> u32 {
+  return u32(Fp6_ct_eq(lhs.c0, rhs.c0) & Fp6_ct_eq(lhs.c1, rhs.c1));
+}
+
+fn G1Projective_ct_eq(lhs: G1Projective, rhs: G1Projective) -> u32{
+  let x1 = Fp_mul(lhs.x,rhs.z);
+  let x2 = Fp_mul(rhs.x,lhs.z);
+
+  let y1 = Fp_mul(lhs.y, rhs.z);
+  let y2 = Fp_mul(rhs.y, lhs.z);
+
+  let self_is_zero = Fp_is_zero(lhs.z);
+  let other_is_zero = Fp_is_zero(rhs.z);
+
+  return u32((self_is_zero & other_is_zero) | 
+  ((u32_negation(self_is_zero)) & (u32_negation(other_is_zero)) & Fp_ct_eq(x1,x2) & Fp_ct_eq(y1,y2)));
+}
+
+
+// util function
+fn convert_to_bool(val: u32) -> bool {
+  if val == 0u { 
+    return false;
+  }else{
+    return true;
+  }
+}
+
+fn u32_negation(val:u32) -> u32 {
+
+//  if val == 0u { 
+//    return 1u;
+//  }else if val == 1u{
+//    return 0u;
+//  }
+  // return None here 
+// todo: do something for unsupported, maybe introduce a new kind of Option for wgsl
+
+  if val == 0u { 
+    return 1u;
+  }else{
+    return 0u;
+  }
+}
+
+fn G2Projective_ct_eq(lhs: G2Projective, rhs: G2Projective ) -> u32 {
+  let x1 = Fp2_mul(lhs.x, rhs.z); 
+  let x2 = Fp2_mul(rhs.x, lhs.z);
   
+  let y1 = Fp2_mul(lhs.y, rhs.z);
+  let y2 = Fp2_mul(rhs.y, lhs.z);
+
+  let self_is_zero = Fp2_is_zero(lhs.z);
+
+  let other_is_zero = Fp2_is_zero(rhs.z);
+
+  return u32((self_is_zero & other_is_zero) | ((u32_negation(self_is_zero)) & (u32_negation(other_is_zero)) & Fp2_ct_eq(x1,x2) & Fp2_ct_eq(y1,y2)));
+}
+
+fn G2Affine_to_G2Projective(g1: G2Affine) -> G2Projective {
+  return G2Projective(
+    g1.x,
+    g1.y,
+    Fp2_conditional_select(Fp2_one(), Fp2_zero(), g1.infinity), 
+  ); 
+}
+
+fn G2Projective_identity() -> G2Projective {
+  return G2Projective(
+      Fp2_zero(),
+      Fp2_one(),
+      Fp2_zero());
+}
+
+fn Fp2_mul_by_3b(x: Fp2) -> Fp2 {
+  return Fp2_mul(x, Fp2_add(Fp2_add(B,B),B));
+} 
+
+fn G2Projective_is_identity(g2: G2Projective) -> u32 {
+  return Fp2_is_zero(g2.z);
+}
+
+fn G2Projective_double(g2: G2Projective) -> G2Projective {
+  // implement G2Condiional select, , square, mul_by_3b
+    var t0 = Fp2_square(g2.y);
+    var z3 = Fp2_add(t0,t0) ;
+    z3 =  Fp2_add(z3,z3);
+    z3 = Fp2_add(z3,z3);
+    var t1 = Fp2_mul(g2.y,g2.z);
+    var t2 = Fp2_square(g2.z);
+    t2 = Fp2_mul_by_3b(t2);
+    var x3 = Fp2_mul(t2,z3);
+    var y3 = Fp2_add(t0,t2);
+    z3 = Fp2_mul(t1,z3);
+    t1 = Fp2_add(t2,t2);
+    t2 = Fp2_add(t1,t2);
+    t0 = Fp2_sub(t0,t2);
+    y3 = Fp2_mul(t0,y3);
+    y3 = Fp2_add(x3,y3);
+    t1 = Fp2_mul(g2.x,g2.y);
+    x3 = Fp2_mul(t0,t1);
+    x3 = Fp2_add(x3,x3);
+
+    let tmp = G2Projective(x3,y3,z3);
+
+
+    return G2Projective_conditional_select(tmp, G2Projective_identity(),G2Projective_is_identity(g2));
+}
+
+fn G2Projective_add(lhs : G2Projective, rhs: G2Projective ) -> G2Projective {
+  var t0 = Fp2_mul(lhs.x, rhs.x);
+  var t1 = Fp2_mul(lhs.y, rhs.y);
+  var t2 = Fp2_mul(lhs.z, rhs.z);
+  var t3 = Fp2_add(lhs.x, lhs.y);
+  var t4 = Fp2_add(rhs.x, rhs.y);
+
+  t3 = Fp2_mul(t3 , t4);
+  t4 = Fp2_add(t0 , t1);
+  t3 = Fp2_sub(t3 , t4);
+  t4 = Fp2_add(lhs.y , lhs.z);
+  var x3 = Fp2_add(rhs.y , rhs.z);
+  t4 = Fp2_mul(t4 , x3);
+  x3 = Fp2_add(t1 , t2);
+  t4 = Fp2_sub(t4 , x3);
+  x3 = Fp2_add(lhs.x , lhs.z);
+  var y3 = Fp2_add(rhs.x , rhs.z);
+  x3 = Fp2_mul(x3 , y3);
+  y3 = Fp2_add(t0 , t2);
+  y3 = Fp2_sub(x3 ,y3);
+  x3 = Fp2_add(t0 , t0);
+  t0 = Fp2_add(x3 , t0);
+  t2 = Fp2_mul_by_3b(t2);
+  var z3 = Fp2_add(t1 , t2);
+  t1 = Fp2_sub(t1 , t2);
+  y3 = Fp2_mul_by_3b(y3);
+  x3 = Fp2_mul(t4 , y3);
+  t2 = Fp2_mul(t3 , t1);
+  x3 = Fp2_sub(t2 , x3);
+  y3 = Fp2_mul(y3 , t0);
+  t1 = Fp2_mul(t1 , z3);
+  y3 = Fp2_add(t1 , y3);
+  t0 = Fp2_mul(t0 , t3);
+  z3 = Fp2_mul(z3 , t4);
+  z3 = Fp2_add(z3 , t0);
+  return G2Projective(x3,y3,z3);
+
+}
+
+fn G2Projective_conditional_select(a: G2Projective, b: G2Projective, choice: u32) -> G2Projective {
+    return G2Projective(
+      Fp2_conditional_select(a.x, b.x, choice),
+      Fp2_conditional_select(a.y, b.y, choice),
+      Fp2_conditional_select(a.z, b.z, choice),
+    );
+}
+
+fn G2Projective_add_mixed(lhs: G2Projective, rhs: G2Affine) -> G2Projective {
+  var t0 = Fp2_mul(lhs.x, rhs.x);
+  var t1 = Fp2_mul(lhs.y, rhs.y);
+  var t3 = Fp2_add(lhs.x, rhs.y);
+  var t4 = Fp2_add(lhs.x, rhs.y);
+
+  t3 = Fp2_mul(t3,t4);
+  t4 = Fp2_add(t0,t1);
+  t3 = Fp2_sub(t3,t4);
+  t4 = Fp2_add(t0,t1);
+  t3 = Fp2_sub(t3,t4);
+  t4 = Fp2_mul(rhs.y,lhs.z);
+  t4 = Fp2_add(t4, lhs.y);
+  var y3 = Fp2_mul(rhs.x, lhs.z);
+  y3 = Fp2_add(y3, lhs.x);
+  var x3 = Fp2_add(t0,t0);
+  t0 = Fp2_add(x3,t0);
+  var t2 = Fp2_mul_by_3b(lhs.z);
+  var z3 = Fp2_add(t1,t2);
+  t1 = Fp2_sub(t1,t2);
+  y3 = Fp2_mul_by_3b(y3);
+  x3 = Fp2_mul(t4,y3);
+  t2 = Fp2_mul(t3,t1);
+  x3 = Fp2_sub(t2,x3);
+  y3 = Fp2_mul(y3,t0);
+  t1 = Fp2_mul(t1,z3);
+  y3 = Fp2_add(t1,y3);
+  t0 = Fp2_mul(t0,t3);
+  z3 = Fp2_mul(z3,t4);
+  z3 = Fp2_add(z3,t0);
+
+  let tmp =  G2Projective(x3,y3,z3);
+
+  // TODO
+  //G2Projective_is_identity(rhs))
+
+  return G2Projective_conditional_select(tmp, lhs, 0u);
+}
+
+fn G2Projective_neg(g2: G2Projective) -> G2Projective{
+  return G2Projective(
+    g2.x,Fp2_neg(g2.y),g2.z
+  );
+}
+
+fn G2Projective_mul_by_x(a : G2Projective ) -> G2Projective {
+  var xself = G2Projective_identity();
+
+  var x = u64_shift_right_by_one(BLS_X);
+  var acc = a;
+  while x[0] != 0u {
+    acc = G2Projective_double(acc);
+    //wip
+    if u64_mod2(x) == 1u {
+        xself = G2Projective_add(xself, acc);
+    }
+    x = u64_shift_right_by_one(x);
+  }
+  if BLS_X_IS_NEGATIVE {
+      xself = G2Projective_neg(xself);
+  }
+  return xself;
+}
+
+fn G2Projective_is_torsion_free(g1:G2Affine) -> u32{
+
+    let p =  G2Affine_to_G2Projective(g1);
+
+    return G2Projective_ct_eq(G2Projective_psi(p),G2Projective_mul_by_x(p));
 }

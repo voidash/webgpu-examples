@@ -1145,6 +1145,7 @@ fn adc_test() {
     v_indices[0] = a[0];
     v_indices[1] = a[1];
 }
+
 @compute
 @workgroup_size(1,1,1)
 fn multiply_test() {
@@ -7329,6 +7330,23 @@ fn Fp_is_zero(fp: Fp) -> u32 {
         ( fp.value[11] == 0u ));
 }
 
+// G1
+const G1_B: Fp = Fp(
+  array<u32,12>(
+        0x000cfff3u,
+        0xaa270000u,
+        0xfc34000au,
+        0x53cc0032u,
+        0x6b0a807fu,
+        0x478fe97au,
+        0xe6ba24d7u,
+        0xb1d37ebeu,
+        0xbf78ab2fu,
+        0x8ec9733bu,
+        0x3d83de7eu,
+        0x09d64551u,)
+);
+
 struct G1Affine {
   x: Fp,
   y: Fp,
@@ -7340,6 +7358,42 @@ struct G1Projective {
   y: Fp,
   z: Fp
 } 
+
+fn G1Projective_generator() -> G1Projective {
+  return G1Projective(
+  Fp(
+array<u32,12>(
+        0xfd530c16u,
+        0x5cb38790u,
+        0x9976fff5u,
+        0x7817fc67u,
+        0x143ba1c1u,
+        0x154f95c7u,
+        0xf3d0e747u,
+        0xf0ae6acdu,
+        0x21dbf440u,
+        0xedce6eccu,
+        0x9e0bfb75u,
+        0x12017741u,)
+),
+  Fp(
+array<u32,12>(
+        0x0ce72271u,
+        0xbaac93d5u,
+        0x7918fd8eu,
+        0x8c22631au,
+        0x570725ceu,
+        0xdd595f13u,
+        0x50405194u,
+        0x51ac5829u,
+        0xad0059c0u,
+        0x0e1c8c3fu,
+        0x5008a26au,
+        0x0bbc3efcu,)
+),
+  Fp_one()
+);
+}
 
 fn G1Projective_conditional_select(a: G1Projective, b: G1Projective, choice: u32) -> G1Projective {
     return G1Projective(
@@ -7597,9 +7651,12 @@ fn G1Projective_clear_cofactor(g1: G1Projective) -> G1Projective {
   return G1Projective_sub(g1, G1Projective_mul_by_x(g1));
 }
 
+/// Returns true if this point is on the curve. This should always return
+/// true unless an "unchecked" API was used.
 fn G1Projective_is_on_cruve(g1: G1Projective) -> u32 {
-  // TODO
-  return 1u;
+  // Y^2 Z = X^3 + b Z^3
+
+  return Fp_ct_eq((Fp_mul(square(g1.y), g1.z)),Fp_add(Fp_mul(square(g1.x), g1.x),Fp_mul(square(g1.z),Fp_mul(g1.z,G1_B)))) | Fp_is_zero(g1.z);
 }
 
 fn G1_is_torsion_free(g1: G1Affine) -> u32 {
@@ -7614,7 +7671,88 @@ fn G1Projective_multiply(lhs: G1Projective, rhs: array<u32,8> ) {
  let acc = G1Projective_identity();
 }
 
+fn G1Affine_generator() -> G1Affine{
+  return G1Affine(
+    Fp(
+array<u32,12>(
+        0xfd530c16u,
+        0x5cb38790u,
+        0x9976fff5u,
+        0x7817fc67u,
+        0x143ba1c1u,
+        0x154f95c7u,
+        0xf3d0e747u,
+        0xf0ae6acdu,
+        0x21dbf440u,
+        0xedce6eccu,
+        0x9e0bfb75u,
+        0x12017741u,)
+),
+    Fp(
+array<u32,12>(
+        0x0ce72271u,
+        0xbaac93d5u,
+        0x7918fd8eu,
+        0x8c22631au,
+        0x570725ceu,
+        0xdd595f13u,
+        0x50405194u,
+        0x51ac5829u,
+        0xad0059c0u,
+        0x0e1c8c3fu,
+        0x5008a26au,
+        0x0bbc3efcu,)
+),
+    0u
+  );
+}
+
+fn G1Affine_identity() -> G1Affine {
+  return G1Affine(
+    Fp_zero(),
+    Fp_one(),
+    1u
+  );
+}
+
+// G1 Tests
+@compute
+@workgroup_size(1,1,1)
+fn G1Projective_test_generator_is_on_curve() {
+    let a = G1Projective_is_on_cruve(G1Projective_generator());
+  
+    v_indices[0] = a;
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn G1Projective_test_identity_is_on_curve() {
+    let a = G1Projective_is_on_cruve(G1Projective_identity());
+  
+    v_indices[0] = a;
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn G1Projective_test_equality() {
+    let a = G1Projective_ct_eq(G1Projective_identity(),G1Projective_generator());
+  
+    v_indices[0] = a;
+}
+
+@compute
+@workgroup_size(1,1,1)
+fn G1Projective_test_conditionally_select_affine_should_select_first() {
+  let a = G1Projective_generator();
+  let b = G1Projective_identity();
+
+  v_indices[0] = G1Projective_ct_eq(G1Projective_conditional_select(a,b,0u),a);
+
+}
+
+
 // G2 Affine
+
 struct G2Affine {
   x: Fp2, 
   y: Fp2,
@@ -8091,3 +8229,5 @@ fn G2Projective_is_torsion_free(g1:G2Affine) -> u32{
 
     return G2Projective_ct_eq(G2Projective_psi(p),G2Projective_mul_by_x(p));
 }
+
+

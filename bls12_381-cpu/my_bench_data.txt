@@ -1,0 +1,538 @@
+
+running 98 tests
+test fp12::test_arithmetic ... ignored
+test fp2::test_addition ... ignored
+test fp2::test_conditional_selection ... ignored
+test fp2::test_equality ... ignored
+test fp2::test_inversion ... ignored
+test fp2::test_lexicographic_largest ... ignored
+test fp2::test_multiplication ... ignored
+test fp2::test_negation ... ignored
+test fp2::test_sqrt ... ignored
+test fp2::test_squaring ... ignored
+test fp2::test_subtraction ... ignored
+test fp6::test_arithmetic ... ignored
+test fp::test_addition ... ignored
+test fp::test_conditional_selection ... ignored
+test fp::test_debug ... ignored
+test fp::test_equality ... ignored
+test fp::test_from_bytes ... ignored
+test fp::test_inversion ... ignored
+test fp::test_lexicographic_largest ... ignored
+test fp::test_multiplication ... ignored
+test fp::test_negation ... ignored
+test fp::test_sqrt ... ignored
+test fp::test_squaring ... ignored
+test fp::test_subtraction ... ignored
+test g1::test_affine_negation_and_subtraction ... ignored
+test g1::test_affine_point_equality ... ignored
+test g1::test_affine_scalar_multiplication ... ignored
+test g1::test_affine_to_projective ... ignored
+test g1::test_batch_normalize ... ignored
+test g1::test_beta ... ignored
+test g1::test_clear_cofactor ... ignored
+test g1::test_commutative_scalar_subgroup_multiplication ... ignored
+test g1::test_conditionally_select_affine ... ignored
+test g1::test_conditionally_select_projective ... ignored
+test g1::test_doubling ... ignored
+test g1::test_is_on_curve ... ignored
+test g1::test_is_torsion_free ... ignored
+test g1::test_mixed_addition ... ignored
+test g1::test_mul_by_x ... ignored
+test g1::test_projective_addition ... ignored
+test g1::test_projective_negation_and_subtraction ... ignored
+test g1::test_projective_point_equality ... ignored
+test g1::test_projective_scalar_multiplication ... ignored
+test g1::test_projective_to_affine ... ignored
+test g2::test_affine_negation_and_subtraction ... ignored
+test g2::test_affine_point_equality ... ignored
+test g2::test_affine_scalar_multiplication ... ignored
+test g2::test_affine_to_projective ... ignored
+test g2::test_batch_normalize ... ignored
+test g2::test_clear_cofactor ... ignored
+test g2::test_commutative_scalar_subgroup_multiplication ... ignored
+test g2::test_conditionally_select_affine ... ignored
+test g2::test_conditionally_select_projective ... ignored
+test g2::test_doubling ... ignored
+test g2::test_is_on_curve ... ignored
+test g2::test_is_torsion_free ... ignored
+test g2::test_mixed_addition ... ignored
+test g2::test_mul_by_x ... ignored
+test g2::test_projective_addition ... ignored
+test g2::test_projective_negation_and_subtraction ... ignored
+test g2::test_projective_point_equality ... ignored
+test g2::test_projective_scalar_multiplication ... ignored
+test g2::test_projective_to_affine ... ignored
+test g2::test_psi ... ignored
+test pairings::test_bilinearity ... ignored
+test pairings::test_gt_generator ... ignored
+test pairings::test_miller_loop_result_default ... ignored
+test pairings::test_multi_miller_loop ... ignored
+test pairings::test_unitary ... ignored
+test pairings::tricking_miller_loop_result ... ignored
+test scalar::test_addition ... ignored
+test scalar::test_constants ... ignored
+test scalar::test_double ... ignored
+test scalar::test_equality ... ignored
+test scalar::test_from_bytes ... ignored
+test scalar::test_from_bytes_wide_maximum ... ignored
+test scalar::test_from_bytes_wide_negative_one ... ignored
+test scalar::test_from_bytes_wide_r2 ... ignored
+test scalar::test_from_raw ... ignored
+test scalar::test_from_u512_max ... ignored
+test scalar::test_from_u512_r ... ignored
+test scalar::test_from_u512_r2 ... ignored
+test scalar::test_from_u512_zero ... ignored
+test scalar::test_inv ... ignored
+test scalar::test_inversion ... ignored
+test scalar::test_invert_is_pow ... ignored
+test scalar::test_multiplication ... ignored
+test scalar::test_negation ... ignored
+test scalar::test_sqrt ... ignored
+test scalar::test_squaring ... ignored
+test scalar::test_subtraction ... ignored
+test scalar::test_to_bytes ... ignored
+test scalar::test_zero ... ignored
+test tests::g1_compressed_valid_test_vectors ... ignored
+test tests::g1_uncompressed_valid_test_vectors ... ignored
+test tests::g2_compressed_valid_test_vectors ... ignored
+test tests::g2_uncompressed_valid_test_vectors ... ignored
+test tests::test_pairing_result_against_relic ... ignored
+
+test result: ok. 0 passed; 0 failed; 98 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+WARNING: HTML report generation will become a non-default optional feature in Criterion.rs 0.4.0.
+This feature is being moved to cargo-criterion (https://github.com/bheisler/cargo-criterion) and will be optional in a future version of Criterion.rs. To silence this warning, either switch to cargo-criterion or enable the 'html_reports' feature in your Cargo.toml.
+
+Gnuplot not found, using plotters backend
+Benchmarking Bigint adc
+Benchmarking Bigint adc: Warming up for 3.0000 s
+Benchmarking Bigint adc: Collecting 100 samples in estimated 5.0000 s (18446744074B iterations)
+Benchmarking Bigint adc: Analyzing
+Bigint adc              time:   [0.0000 ps 0.0000 ps 0.0000 ps]
+                        change: [-48.105% +2.3005% +97.560%] (p = 0.96 > 0.05)
+                        No change in performance detected.
+Found 12 outliers among 100 measurements (12.00%)
+  4 (4.00%) high mild
+  8 (8.00%) high severe
+
+Benchmarking Bigint mac
+Benchmarking Bigint mac: Warming up for 3.0000 s
+Benchmarking Bigint mac: Collecting 100 samples in estimated 5.0000 s (18446744074B iterations)
+Benchmarking Bigint mac: Analyzing
+Bigint mac              time:   [0.0000 ps 0.0000 ps 0.0000 ps]
+                        change: [-46.985% +2.4010% +102.97%] (p = 0.95 > 0.05)
+                        No change in performance detected.
+Found 14 outliers among 100 measurements (14.00%)
+  5 (5.00%) high mild
+  9 (9.00%) high severe
+
+Benchmarking Fp multiply
+Benchmarking Fp multiply: Warming up for 3.0000 s
+Benchmarking Fp multiply: Collecting 100 samples in estimated 5.0000 s (326M iterations)
+Benchmarking Fp multiply: Analyzing
+Fp multiply             time:   [15.271 ns 15.303 ns 15.339 ns]
+                        change: [+2.2494% +2.6231% +2.9841%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 16 outliers among 100 measurements (16.00%)
+  9 (9.00%) high mild
+  7 (7.00%) high severe
+
+Benchmarking Fp subtract
+Benchmarking Fp subtract: Warming up for 3.0000 s
+Benchmarking Fp subtract: Collecting 100 samples in estimated 5.0001 s (340M iterations)
+Benchmarking Fp subtract: Analyzing
+Fp subtract             time:   [14.831 ns 14.866 ns 14.896 ns]
+                        change: [+1.9356% +2.4116% +2.8804%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+
+running 0 tests
+
+test result: ok. 0 passed; 0 failed; 0 ignored; 0 measured; 0 filtered out; finished in 0.00s
+
+WARNING: HTML report generation will become a non-default optional feature in Criterion.rs 0.4.0.
+This feature is being moved to cargo-criterion (https://github.com/bheisler/cargo-criterion) and will be optional in a future version of Criterion.rs. To silence this warning, either switch to cargo-criterion or enable the 'html_reports' feature in your Cargo.toml.
+
+Gnuplot not found, using plotters backend
+Benchmarking full pairing
+Benchmarking full pairing: Warming up for 3.0000 s
+
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 7.1s, enable flat sampling, or reduce sample count to 50.
+Benchmarking full pairing: Collecting 100 samples in estimated 7.1314 s (5050 iterations)
+Benchmarking full pairing: Analyzing
+full pairing            time:   [1.4428 ms 1.5015 ms 1.5749 ms]
+                        change: [+5.1196% +7.7489% +10.985%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 9 outliers among 100 measurements (9.00%)
+  2 (2.00%) high mild
+  7 (7.00%) high severe
+
+Benchmarking G2 preparation for pairing
+Benchmarking G2 preparation for pairing: Warming up for 3.0000 s
+Benchmarking G2 preparation for pairing: Collecting 100 samples in estimated 5.4057 s (35k iterations)
+Benchmarking G2 preparation for pairing: Analyzing
+G2 preparation for pairing
+                        time:   [159.91 µs 164.08 µs 168.94 µs]
+                        change: [+8.9811% +10.977% +13.094%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 11 outliers among 100 measurements (11.00%)
+  3 (3.00%) high mild
+  8 (8.00%) high severe
+
+Benchmarking miller loop for pairing
+Benchmarking miller loop for pairing: Warming up for 3.0000 s
+Benchmarking miller loop for pairing: Collecting 100 samples in estimated 6.3458 s (15k iterations)
+Benchmarking miller loop for pairing: Analyzing
+miller loop for pairing time:   [400.06 µs 407.20 µs 418.87 µs]
+                        change: [+4.6445% +5.8393% +7.2980%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking final exponentiation for pairing
+Benchmarking final exponentiation for pairing: Warming up for 3.0000 s
+Benchmarking final exponentiation for pairing: Collecting 100 samples in estimated 9.2652 s (10k iterations)
+Benchmarking final exponentiation for pairing: Analyzing
+final exponentiation for pairing
+                        time:   [894.33 µs 910.25 µs 930.23 µs]
+                        change: [+13.610% +19.910% +25.789%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 20 outliers among 100 measurements (20.00%)
+  20 (20.00%) high mild
+
+Benchmarking G1Affine check on curve
+Benchmarking G1Affine check on curve: Warming up for 3.0000 s
+Benchmarking G1Affine check on curve: Collecting 100 samples in estimated 5.0005 s (28M iterations)
+Benchmarking G1Affine check on curve: Analyzing
+G1Affine check on curve time:   [190.36 ns 197.39 ns 206.23 ns]
+                        change: [+8.8864% +13.008% +17.993%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 14 outliers among 100 measurements (14.00%)
+  1 (1.00%) high mild
+  13 (13.00%) high severe
+
+Benchmarking G1Affine check equality
+Benchmarking G1Affine check equality: Warming up for 3.0000 s
+Benchmarking G1Affine check equality: Collecting 100 samples in estimated 5.0000 s (90M iterations)
+Benchmarking G1Affine check equality: Analyzing
+G1Affine check equality time:   [55.251 ns 55.366 ns 55.481 ns]
+                        change: [+1.9036% +2.4131% +3.1181%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  2 (2.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking G1Affine scalar multiplication
+Benchmarking G1Affine scalar multiplication: Warming up for 3.0000 s
+Benchmarking G1Affine scalar multiplication: Collecting 100 samples in estimated 6.2570 s (15k iterations)
+Benchmarking G1Affine scalar multiplication: Analyzing
+G1Affine scalar multiplication
+                        time:   [374.31 µs 376.37 µs 379.78 µs]
+                        change: [+3.7652% +4.3385% +4.9382%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 16 outliers among 100 measurements (16.00%)
+  2 (2.00%) low mild
+  6 (6.00%) high mild
+  8 (8.00%) high severe
+
+Benchmarking G1Affine subgroup check
+Benchmarking G1Affine subgroup check: Warming up for 3.0000 s
+Benchmarking G1Affine subgroup check: Collecting 100 samples in estimated 5.1230 s (61k iterations)
+Benchmarking G1Affine subgroup check: Analyzing
+G1Affine subgroup check time:   [79.742 µs 80.272 µs 81.061 µs]
+                        change: [+4.4719% +5.3091% +6.5411%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 15 outliers among 100 measurements (15.00%)
+  2 (2.00%) high mild
+  13 (13.00%) high severe
+
+Benchmarking G1Affine deserialize compressed point
+Benchmarking G1Affine deserialize compressed point: Warming up for 3.0000 s
+Benchmarking G1Affine deserialize compressed point: Collecting 100 samples in estimated 5.0597 s (45k iterations)
+Benchmarking G1Affine deserialize compressed point: Analyzing
+G1Affine deserialize compressed point
+                        time:   [113.59 µs 119.61 µs 126.59 µs]
+                        change: [+4.2828% +7.0897% +10.242%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 14 outliers among 100 measurements (14.00%)
+  1 (1.00%) high mild
+  13 (13.00%) high severe
+
+Benchmarking G1Affine deserialize uncompressed point
+Benchmarking G1Affine deserialize uncompressed point: Warming up for 3.0000 s
+Benchmarking G1Affine deserialize uncompressed point: Collecting 100 samples in estimated 5.2722 s (66k iterations)
+Benchmarking G1Affine deserialize uncompressed point: Analyzing
+G1Affine deserialize uncompressed point
+                        time:   [80.260 µs 81.017 µs 81.992 µs]
+                        change: [+3.3171% +3.9792% +4.6969%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 10 outliers among 100 measurements (10.00%)
+  2 (2.00%) high mild
+  8 (8.00%) high severe
+
+Benchmarking G1Projective check on curve
+Benchmarking G1Projective check on curve: Warming up for 3.0000 s
+Benchmarking G1Projective check on curve: Collecting 100 samples in estimated 5.0011 s (11M iterations)
+Benchmarking G1Projective check on curve: Analyzing
+G1Projective check on curve
+                        time:   [401.33 ns 404.26 ns 408.23 ns]
+                        change: [+3.9642% +5.2527% +6.7559%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking G1Projective check equality
+Benchmarking G1Projective check equality: Warming up for 3.0000 s
+Benchmarking G1Projective check equality: Collecting 100 samples in estimated 5.0007 s (14M iterations)
+Benchmarking G1Projective check equality: Analyzing
+G1Projective check equality
+                        time:   [349.43 ns 353.10 ns 357.66 ns]
+                        change: [+32.316% +41.135% +52.684%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  3 (3.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking G1Projective to affine
+Benchmarking G1Projective to affine: Warming up for 3.0000 s
+Benchmarking G1Projective to affine: Collecting 100 samples in estimated 5.0587 s (157k iterations)
+Benchmarking G1Projective to affine: Analyzing
+G1Projective to affine  time:   [31.862 µs 33.224 µs 34.839 µs]
+                        change: [+3.8635% +7.0200% +10.982%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 11 outliers among 100 measurements (11.00%)
+  1 (1.00%) high mild
+  10 (10.00%) high severe
+
+Benchmarking G1Projective doubling
+Benchmarking G1Projective doubling: Warming up for 3.0000 s
+Benchmarking G1Projective doubling: Collecting 100 samples in estimated 5.0015 s (8.9M iterations)
+Benchmarking G1Projective doubling: Analyzing
+G1Projective doubling   time:   [569.18 ns 572.92 ns 577.08 ns]
+                        change: [+4.8568% +5.4064% +6.0307%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 9 outliers among 100 measurements (9.00%)
+  6 (6.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking G1Projective addition
+Benchmarking G1Projective addition: Warming up for 3.0000 s
+Benchmarking G1Projective addition: Collecting 100 samples in estimated 5.0032 s (5.0M iterations)
+Benchmarking G1Projective addition: Analyzing
+G1Projective addition   time:   [905.62 ns 912.07 ns 918.86 ns]
+                        change: [+3.9492% +5.3627% +6.6797%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking G1Projective mixed addition
+Benchmarking G1Projective mixed addition: Warming up for 3.0000 s
+Benchmarking G1Projective mixed addition: Collecting 100 samples in estimated 5.0033 s (6.1M iterations)
+Benchmarking G1Projective mixed addition: Analyzing
+G1Projective mixed addition
+                        time:   [842.85 ns 888.17 ns 940.73 ns]
+                        change: [+7.7693% +11.216% +15.014%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 16 outliers among 100 measurements (16.00%)
+  4 (4.00%) high mild
+  12 (12.00%) high severe
+
+Benchmarking G1Projective scalar multiplication
+Benchmarking G1Projective scalar multiplication: Warming up for 3.0000 s
+Benchmarking G1Projective scalar multiplication: Collecting 100 samples in estimated 6.1009 s (15k iterations)
+Benchmarking G1Projective scalar multiplication: Analyzing
+G1Projective scalar multiplication
+                        time:   [388.09 µs 390.50 µs 393.70 µs]
+                        change: [+5.1276% +5.8202% +6.5231%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking G1Projective batch to affine n=10000
+Benchmarking G1Projective batch to affine n=10000: Warming up for 3.0000 s
+Benchmarking G1Projective batch to affine n=10000: Collecting 100 samples in estimated 5.3138 s (1500 iterations)
+Benchmarking G1Projective batch to affine n=10000: Analyzing
+G1Projective batch to affine n=10000
+                        time:   [3.4891 ms 3.5234 ms 3.5663 ms]
+                        change: [+11.856% +12.993% +14.374%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking G2Affine check on curve
+Benchmarking G2Affine check on curve: Warming up for 3.0000 s
+Benchmarking G2Affine check on curve: Collecting 100 samples in estimated 5.0004 s (9.3M iterations)
+Benchmarking G2Affine check on curve: Analyzing
+G2Affine check on curve time:   [525.50 ns 530.16 ns 536.19 ns]
+                        change: [+7.0239% +7.9996% +9.0006%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  1 (1.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking G2Affine check equality
+Benchmarking G2Affine check equality: Warming up for 3.0000 s
+Benchmarking G2Affine check equality: Collecting 100 samples in estimated 5.0000 s (49M iterations)
+Benchmarking G2Affine check equality: Analyzing
+G2Affine check equality time:   [102.41 ns 102.92 ns 103.54 ns]
+                        change: [+9.9047% +10.631% +11.321%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 6 outliers among 100 measurements (6.00%)
+  5 (5.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking G2Affine scalar multiplication
+Benchmarking G2Affine scalar multiplication: Warming up for 3.0000 s
+
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.2s, enable flat sampling, or reduce sample count to 60.
+Benchmarking G2Affine scalar multiplication: Collecting 100 samples in estimated 6.1611 s (5050 iterations)
+Benchmarking G2Affine scalar multiplication: Analyzing
+G2Affine scalar multiplication
+                        time:   [1.2291 ms 1.2507 ms 1.2750 ms]
+                        change: [+8.7308% +9.9002% +11.214%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 11 outliers among 100 measurements (11.00%)
+  4 (4.00%) high mild
+  7 (7.00%) high severe
+
+Benchmarking G2Affine subgroup check
+Benchmarking G2Affine subgroup check: Warming up for 3.0000 s
+Benchmarking G2Affine subgroup check: Collecting 100 samples in estimated 5.4511 s (40k iterations)
+Benchmarking G2Affine subgroup check: Analyzing
+G2Affine subgroup check time:   [134.12 µs 134.93 µs 135.88 µs]
+                        change: [+6.8316% +7.4888% +8.2172%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  2 (2.00%) high mild
+  3 (3.00%) high severe
+
+Benchmarking G2Affine deserialize compressed point
+Benchmarking G2Affine deserialize compressed point: Warming up for 3.0000 s
+Benchmarking G2Affine deserialize compressed point: Collecting 100 samples in estimated 5.0410 s (15k iterations)
+Benchmarking G2Affine deserialize compressed point: Analyzing
+G2Affine deserialize compressed point
+                        time:   [328.47 µs 330.06 µs 331.79 µs]
+                        change: [+3.9353% +6.3168% +8.2094%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking G2Affine deserialize uncompressed point
+Benchmarking G2Affine deserialize uncompressed point: Warming up for 3.0000 s
+Benchmarking G2Affine deserialize uncompressed point: Collecting 100 samples in estimated 5.6209 s (40k iterations)
+Benchmarking G2Affine deserialize uncompressed point: Analyzing
+G2Affine deserialize uncompressed point
+                        time:   [135.71 µs 137.40 µs 140.13 µs]
+                        change: [+9.1650% +10.178% +11.248%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking G2Projective check on curve
+Benchmarking G2Projective check on curve: Warming up for 3.0000 s
+Benchmarking G2Projective check on curve: Collecting 100 samples in estimated 5.0024 s (4.0M iterations)
+Benchmarking G2Projective check on curve: Analyzing
+G2Projective check on curve
+                        time:   [1.2094 µs 1.2143 µs 1.2202 µs]
+                        change: [+7.2077% +7.9797% +8.9200%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 3 outliers among 100 measurements (3.00%)
+  1 (1.00%) high mild
+  2 (2.00%) high severe
+
+Benchmarking G2Projective check equality
+Benchmarking G2Projective check equality: Warming up for 3.0000 s
+Benchmarking G2Projective check equality: Collecting 100 samples in estimated 5.0033 s (5.9M iterations)
+Benchmarking G2Projective check equality: Analyzing
+G2Projective check equality
+                        time:   [856.66 ns 869.84 ns 885.30 ns]
+                        change: [+2.2523% +3.1370% +4.1522%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 9 outliers among 100 measurements (9.00%)
+  3 (3.00%) high mild
+  6 (6.00%) high severe
+
+Benchmarking G2Projective to affine
+Benchmarking G2Projective to affine: Warming up for 3.0000 s
+Benchmarking G2Projective to affine: Collecting 100 samples in estimated 5.1535 s (157k iterations)
+Benchmarking G2Projective to affine: Analyzing
+G2Projective to affine  time:   [32.104 µs 32.262 µs 32.440 µs]
+                        change: [+5.8891% +7.1153% +8.2971%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 9 outliers among 100 measurements (9.00%)
+  5 (5.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking G2Projective doubling
+Benchmarking G2Projective doubling: Warming up for 3.0000 s
+Benchmarking G2Projective doubling: Collecting 100 samples in estimated 5.0082 s (2.5M iterations)
+Benchmarking G2Projective doubling: Analyzing
+G2Projective doubling   time:   [1.8422 µs 1.8529 µs 1.8655 µs]
+                        change: [+9.0747% +9.8119% +10.689%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking G2Projective addition
+Benchmarking G2Projective addition: Warming up for 3.0000 s
+Benchmarking G2Projective addition: Collecting 100 samples in estimated 5.0047 s (1.6M iterations)
+Benchmarking G2Projective addition: Analyzing
+G2Projective addition   time:   [3.0167 µs 3.0389 µs 3.0667 µs]
+                        change: [+9.9913% +11.169% +12.552%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 1 outliers among 100 measurements (1.00%)
+  1 (1.00%) high mild
+
+Benchmarking G2Projective mixed addition
+Benchmarking G2Projective mixed addition: Warming up for 3.0000 s
+Benchmarking G2Projective mixed addition: Collecting 100 samples in estimated 5.0069 s (1.8M iterations)
+Benchmarking G2Projective mixed addition: Analyzing
+G2Projective mixed addition
+                        time:   [2.7308 µs 2.7404 µs 2.7497 µs]
+                        change: [+8.1219% +8.9834% +9.9346%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 5 outliers among 100 measurements (5.00%)
+  1 (1.00%) high mild
+  4 (4.00%) high severe
+
+Benchmarking G2Projective scalar multiplication
+Benchmarking G2Projective scalar multiplication: Warming up for 3.0000 s
+
+Warning: Unable to complete 100 samples in 5.0s. You may wish to increase target time to 6.1s, enable flat sampling, or reduce sample count to 60.
+Benchmarking G2Projective scalar multiplication: Collecting 100 samples in estimated 6.1323 s (5050 iterations)
+Benchmarking G2Projective scalar multiplication: Analyzing
+G2Projective scalar multiplication
+                        time:   [1.2022 ms 1.2074 ms 1.2131 ms]
+                        change: [+6.0668% +6.7552% +7.4014%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 4 outliers among 100 measurements (4.00%)
+  3 (3.00%) high mild
+  1 (1.00%) high severe
+
+Benchmarking G2Projective batch to affine n=10000
+Benchmarking G2Projective batch to affine n=10000: Warming up for 3.0000 s
+Benchmarking G2Projective batch to affine n=10000: Collecting 100 samples in estimated 5.8439 s (600 iterations)
+Benchmarking G2Projective batch to affine n=10000: Analyzing
+G2Projective batch to affine n=10000
+                        time:   [9.6971 ms 9.7345 ms 9.7735 ms]
+                        change: [+3.6053% +4.0544% +4.5321%] (p = 0.00 < 0.05)
+                        Performance has regressed.
+Found 2 outliers among 100 measurements (2.00%)
+  2 (2.00%) high mild
+

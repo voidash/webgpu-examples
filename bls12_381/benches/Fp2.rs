@@ -1,7 +1,8 @@
 use fp::run;
 
-#[test]
-fn fp2_add_test() {
+use criterion::{criterion_group, criterion_main, Criterion};
+
+fn fp2_add() {
     let d0 : Vec<u32> = vec![
             0x63ee_70d4,
             0xc9a2_1831,
@@ -251,4 +252,11 @@ fn fp2_test_negation() {
  assert_eq!(c[0..24], expected_output);
 }
 
+fn criterion_benchmark(c: &mut Criterion) {
+
+    c.bench_function("Fp2 add", |b| b.iter(|| fp2_add()));
+}
+
+criterion_group!(benches, criterion_benchmark);
+criterion_main!(benches);
 

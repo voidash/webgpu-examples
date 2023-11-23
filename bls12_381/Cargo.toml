@@ -19,3 +19,15 @@ criterion = { version = "0.4", features = ["html_reports"] }
 [[bench]]
 name = "Fp"
 harness = false
+
+[[bench]]
+name = "Fp2"
+harness = false
+
+[[bench]]
+name = "Fp6"
+harness = false
+
+[[bench]]
+name = "G1"
+harness = false

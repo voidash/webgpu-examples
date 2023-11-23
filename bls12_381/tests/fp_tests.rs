@@ -1,5 +1,4 @@
 use fp::run;
-use criterion::{black_box, criterion_group, criterion_main, Criterion};
 
 #[test]
 fn multiply_test() {
@@ -76,12 +75,11 @@ fn adc_test() {
     ];
     // a + b + carry
 
-    for (a, b) in d1.iter().zip(d2.iter()) {
-        let c = pollster::block_on(run(&vec![*a, *b, 0], "adc_test"));
-        println!("{}, {}", c[0], c[1]);
-        // assert!(c[0] == 3045809618);
-        // assert!(c[1] == 0);
-    }
+        let c = pollster::block_on(run(&vec![d1[0], d2[0], 0], "adc_test"));
+        // println!("{}, {}", c[0], c[1]);
+
+        assert_eq!(c[0] , 3045809618);
+        assert_eq!(c[1] , 0);
 }
 
 #[test]
@@ -161,16 +159,13 @@ fn sbb_test() {
         0x64774b84, 0x434bacd7, 0x4b1ba7b6, 0x397fe69a, 0x1a0111ea,
     ];
     // a - (b+borrow)
-    let mut borrow = 0;
-    for i in 0..12 {
-        let c = pollster::block_on(run(&vec![a[i], md[i], borrow], "sbb_test"));
-        borrow = c[1];
+        let  borrow = 0;
+        let c = pollster::block_on(run(&vec![a[0], md[0], borrow], "sbb_test"));
         println!("{} {}", c[0], c[1]);
-    }
     // 1 - (2 + 1);
     // wrapping subtraction
-    // assert_eq!(c[0], 994288274);
-    // assert!(c[1] == 0);
+    assert_eq!(c[0], 3045831463);
+    assert_eq!(c[1] , 4294967295);
 }
 
 #[test]

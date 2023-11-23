@@ -76,14 +76,10 @@ fn adc() {
         0x3d23dda0, 0x9fd28773, 0x738b3554, 0xb16bf2af, 0xd3cc6d1d, 0x3e57a75b, 0x627fd6d6,
         0x900bc0bd, 0xefb245fe, 0xd319a080, 0xe4bb2091, 0x15fdcaa4,
     ];
-    // a + b + carry
 
-    for (a, b) in d1.iter().zip(d2.iter()) {
-        let c = pollster::block_on(run(&vec![*a, *b, 0], "adc_test"));
-        
-        // assert!(c[0] == 3045809618);
-        // assert!(c[1] == 0);
-    }
+        let c = pollster::block_on(run(&vec![d1[0], d2[0], 0], "adc_test"));
+        assert!(c[0] == 3045809618);
+        assert!(c[1] == 0);
 }
 
 
@@ -207,8 +203,6 @@ fn fp_multiply() {
 
 // benchmark_code
 fn criterion_benchmark(c: &mut Criterion) {
-
-
     c.bench_function("Bigint multiply", |b| b.iter(||multiply()));
     c.bench_function("Bigint add", |b| b.iter(|| sum()));
 
